@@ -1,0 +1,44 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ name }}
+  namespace: {{ namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/auth-url: 'https://server-api.toolmen.bime.ntu.edu.tw/validate'
+    nginx.ingress.kubernetes.io/configuration-snippet: ' if ($request_uri ~* "jupyter") {         break;       }'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/upgrade: websocket
+    nginx.ingress.kubernetes.io/proxy-body-size: 128m
+spec:
+  tls:
+    - hosts:
+        - server.toolmen.bime.ntu.edu.tw
+      secretName: server-frontend-tls-secret
+  rules:
+    - host: {{ host }}
+      http:
+        paths:
+          - path: "/{{ name }}/jupyter"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ name }}
+                port:
+                  number: 8000
+          - path: "/{{ name }}/vnc(/|$)(.*)"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ name }}
+                port:
+                  number: 6080
+          - path: "/{{ name }}/websockify"
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ name }}
+                port:
+                  number: 6080

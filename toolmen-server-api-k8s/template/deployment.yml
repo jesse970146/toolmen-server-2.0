@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ name }}
+  namespace: {{ namespace }}
+  labels:
+    labbox-pod-name: {{ name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      labbox-pod-name: {{ name }}
+  template:
+    metadata:
+      labels:
+        labbox-pod-name: {{ name }}
+    spec:
+      restartPolicy: Always
+      {% if server %}
+      nodeSelector:
+        kubernetes.io/hostname: {{ server }}
+      {% endif %}
+      containers:
+        - name: main
+          image: {{ image }}
+          ports:
+            - containerPort: 22
+            - containerPort: 6080
+            - containerPort: 8000
+          env:
+            - name: USERNAME
+              value: {{ username }}
+            - name: PASSWORD
+              value: {{ password }}
+            - name: POD_NAME
+              value: {{ name }}
+          {% if lab == 'Toolmen' %}
+          volumeMounts:
+            - name: nfs-nas-data
+              mountPath: /home/nas  
+            - name: nfs-nas-data2
+              mountPath: /home/nas2
+            - name: nfs-nas-pig
+              mountPath: /home/nas-pig 
+            - name: nfs-nas-personal
+              mountPath: /home/{{ username}}
+              subPath: user_home_dir/{{ lab }}/{{ username }}/{{ version }}
+          {% endif %}
+          resources:
+            requests:
+              memory: "512Mi"
+            limits:
+              memory: "40Gi"
+      {% if lab == 'Toolmen' %}
+      volumes:
+        - name: nfs-nas-data
+          persistentVolumeClaim:
+            claimName: nfs-nas-data
+        - name: nfs-nas-data2
+          persistentVolumeClaim:
+            claimName: nfs-nas-data2
+        - name: nfs-nas-pig
+          persistentVolumeClaim:
+            claimName: nfs-nas-pig
+        - name: nfs-nas-personal
+          persistentVolumeClaim:
+            claimName: nfs-nas-personal
+      {% endif %}

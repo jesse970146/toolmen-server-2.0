@@ -1,0 +1,63 @@
+{
+  "name": "server-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@ant-design/icons": "4.0.0",
+    "@craco/craco": "^6.4.3",
+    "@novnc/novnc": "^1.6.0",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "antd": "^4.19.5",
+    "autoprefixer": "^10.4.4",
+    "axios": "^0.26.1",
+    "babel-plugin-import": "^1.13.3",
+    "craco-less": "^2.0.0",
+    "css-loader": "^6.7.1",
+    "dotenv": "^16.0.0",
+    "less": "^4.1.2",
+    "less-loader": "^10.2.0",
+    "mini-css-extract-plugin": "^2.6.0",
+    "novnc": "^1.2.0",
+    "parse-prometheus-text-format": "^1.1.1",
+    "postcss-loader": "^6.2.1",
+    "puppeteer": "^13.5.2",
+    "puppeteer-core": "^13.5.2",
+    "react": "^18.0.0",
+    "react-advanced-gauge-chart": "^0.2.7",
+    "react-dom": "^18.0.0",
+    "react-icons": "^4.3.1",
+    "react-router-dom": "6",
+    "react-scripts": "5.0.0",
+    "react-vnc": "^3.1.0",
+    "recharts": "^2.1.9",
+    "socket.io-client": "^4.4.1",
+    "tailwindcss": "^3.0.23",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "craco  start",
+    "build": "craco  build",
+    "test": "craco  test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

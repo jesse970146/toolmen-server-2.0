@@ -1,0 +1,12 @@
+apiVersion: sshpiper.com/v1beta1
+kind: Pipe
+metadata:
+  name: {{ name }}
+  namespace: {{ namespace }}
+spec:
+  from:
+  - username: {{ name }}
+  to:
+    host: "{{ name }}:22"
+    username: {{ username }}
+    ignore_hostkey: true

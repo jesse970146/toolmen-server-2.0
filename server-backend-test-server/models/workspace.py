@@ -1,17 +1,16 @@
 from db import db
 
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 
 class WorkspaceModel(db.Model):
     __tablename__ = 'workspace'
 
     name = db.Column(db.String(80), primary_key=True)
-    status = db.Column(db.String(64), default="unknown")
-    server = db.Column(db.String(16), default="unknown")
-    # token = db.Column(db.String(64), default="")
+    status = db.Column(db.String(64), default="")
+    server = db.Column(db.String(16), default="")
     user_name = db.Column(db.String(80), db.ForeignKey('user.username', ondelete='RESTRICT'), nullable=False)
-    create_time = db.Column(db.DateTime, default=datetime.now)
+    create_time = db.Column(db.DateTime, default=datetime.now(timezone(timedelta(hours=8))))
     image_name = db.Column(db.String(80), db.ForeignKey('image.name', ondelete='RESTRICT'), nullable=False)
    
 

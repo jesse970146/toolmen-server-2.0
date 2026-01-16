@@ -1,9 +1,10 @@
 from flask import abort, request
 from flask_restful import Resource
+
 from functions.decorator import admin_required, active_required
 from models.image import ImageModel
 from schemas.image import ImageSchema
-from functions.strings import gettext
+
 
 image_schema = ImageSchema()
 image_list_schema = ImageSchema(many=True)
@@ -14,16 +15,16 @@ class Image(Resource):
     def delete(self, image_name: str):
         image = ImageModel.find_by_name(image_name)
         if not image:
-            abort (404, message=gettext("image_not_found"))
+            abort (404, message="Image not found")
 
         image.delete_from_db()
-        return {"message": gettext("image_deleted")}, 200
+        return {"message": "Image deleted"}, 200
     
-# /image
+# /images
 class ImageList(Resource):
     @active_required()
     def get(self):
-        return {'images': image_list_schema.dump(ImageModel.find_all())}
+        return {'images': image_list_schema.dump(ImageModel.find_all())}, 200
     
     @admin_required()
     def post(self):
@@ -38,4 +39,5 @@ class ImageList(Resource):
         except:
             abort(500, message=f"An error occurred during creating the image.")
 
-        return image_schema.dump(image_data), 201
+        # return image_schema.dump(image_data), 201
+        return {'message': "Image created"}, 201

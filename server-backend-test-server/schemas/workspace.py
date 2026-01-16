@@ -13,7 +13,6 @@ class WorkspaceSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         load_only = ()
         include_fk = True
-        # include_relationships = True
         include_relationships = False
         sqla_session = db.session
         unknown = EXCLUDE

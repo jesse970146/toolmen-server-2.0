@@ -7,8 +7,6 @@ from flask import abort
 class UserModel(db.Model):
     __tablename__ = "user"
 
-    #! nullable=False:username,password,fullname,student_id,email
-    #! unique=True:student_id,email
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(128))

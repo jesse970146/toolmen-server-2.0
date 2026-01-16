@@ -262,12 +262,18 @@ def get_pods_status(pod_name):
 
         if not pods:
             return jsonify({"error": "No pods found"}), 404
-
-        pod = pods[0]  # 取第一個 Pod
-        return jsonify({
-            "name": pod.metadata.name,
-            "status": pod.status.phase, 
-        })
+        if len(pods) == 1:
+            pod = pods[0]  # 取第一個 Pod
+            return jsonify({
+                "name": pod.metadata.name,
+                "status": pod.status.phase, 
+            })
+        else :
+            pod = pods[0]  # 取第一個 Pod
+            return jsonify({
+                "name": pod.metadata.name,
+                "status": "Restarting", 
+            })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 404

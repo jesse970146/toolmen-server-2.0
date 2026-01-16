@@ -10,12 +10,12 @@ from db import db
 
 
 class LabSchema(ma.SQLAlchemyAutoSchema):
-    user = ma.Nested(UserSchema, many=True)
+    # user = ma.Nested(UserSchema, many=True)
     class Meta:
         model = LabModel
-        load_only = ("activation_code",)
+        # load_only = ("activation_code",)
         load_instance = True
         include_fk = True
-        include_relationships = True
+        include_relationships = False
         sqla_session = db.session
         unknown = EXCLUDE

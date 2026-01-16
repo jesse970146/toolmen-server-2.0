@@ -8,11 +8,7 @@ class ImageModel(db.Model):
 
     name = db.Column(db.String(80), primary_key=True)
     value = db.Column(db.String(80), unique=True)
-    Description = db.Column(db.String(256), default="Toolmen workspace image")
-    # owner = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=True)
-    # public = db.Column(db.Boolean, default=False)
-    # auto = db.Column(db.Boolean, default=True)
-    #? workspaces = db.relationship('WorkspaceModel',  backref='image', lazy='dynamic')
+    Description = db.Column(db.String(256), default="")
 
     @classmethod
     def find_by_name(cls, name):

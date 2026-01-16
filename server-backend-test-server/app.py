@@ -1,16 +1,15 @@
 from resources.lab import Lab, LabList
 from resources.image import Image, ImageList
-from resources.workspace import Workspace, WorkspaceList
-# from resources.google_login import GoogleLogin, GoogleAuthorize
-# from resources.github_login import GithubLogin, GithubAuthorize
+from resources.workspace import Workspace, WorkspaceList, WorkspaceLists
+
 from resources.user import  UserLogin, User, UserLogout, TokenRefresh, UserList
-from resources.validate import validate
+from resources.ownership import ownership
 from resources.node import node
 from blacklist import BLACKLIST
 from default_admin import default_admin
 from default_lab import default_lab
 from default_image import default_image
-from oa import oauth
+
 from ma import ma
 from db import db
 import os
@@ -95,24 +94,22 @@ def internal_error(e):
 # def internal_error(e):
 #     return redirect(frontend_base_url+"/error?time=5")
 
-
+api.add_resource(WorkspaceLists, '/workspaces/<int:user_id>')
 api.add_resource(Workspace, '/workspace/<string:name>')
-api.add_resource(WorkspaceList, '/workspace')
+api.add_resource(WorkspaceList, '/workspaces')
 
 
 api.add_resource(Image, '/image/<string:image_name>')
-api.add_resource(ImageList, '/image')
+api.add_resource(ImageList, '/images')
 
-api.add_resource(validate, '/validate')
+api.add_resource(ownership, '/ownership')
 api.add_resource(node, '/node')
 
 
 api.add_resource(Lab, "/lab/<string:lab_name>")
-api.add_resource(LabList, "/lab")
+api.add_resource(LabList, "/labs")
 
-# api.add_resource(LabVerify, "/lab/verify/<string:name>")
 
-# api.add_resource(UserRegister, "/register")
 api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserList, '/user')
 
@@ -121,27 +118,15 @@ api.add_resource(UserLogout, "/logout")
 
 api.add_resource(TokenRefresh, "/refresh")
 
-# Jesse註解
-# api.add_resource(GithubLogin, "/login/github")
-# api.add_resource(GithubAuthorize, "/login/github/authorized",
-#                  endpoint="github.authorize")
-# api.add_resource(GoogleLogin, "/login/google")
-# api.add_resource(GoogleAuthorize, "/login/google/authorized",
-#                  endpoint="google.authorize")
-# Jesse註解
-
-
 
 if __name__ == "__main__":
     db.init_app(app)
     ma.init_app(app)
-    oauth.init_app(app)
 
     with app.app_context():
         db.create_all()
         default_lab()
         default_admin()
-        
         default_image()
 
     app.run(port=8080, host='0.0.0.0')

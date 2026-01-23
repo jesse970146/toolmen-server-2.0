@@ -140,35 +140,7 @@ const Loginpage = (props) => {
         >
           Login
         </Button>
-        {/* <div className="mt-4">
-          <span className="text-gray-700">Don't have an account? </span>
-          <a className="text-blue-500 underline-offset-0" href="/signup">
-            Create one with email.
-          </a>
-        </div> */}
-        {/* <Divider plain>or</Divider>
-        <Button
-          size="large"
-          onClick={() => {
-            window.location.href =
-              process.env.REACT_APP_BACKEND_BASE_URL + "/login/google";
-          }}
-          className="w-full flex justify-center items-center gap-4 bg-white/[0.8] rounded-md"
-        >
-          <FcGoogle className="w-6 h-6" />
-          <div className="w-40  flex justify-start">Continue with Google</div>
-        </Button> */}
-        {/* <Button
-          size="large"
-          onClick={() => {
-            window.location.href =
-              process.env.REACT_APP_BACKEND_BASE_URL + "/login/github";
-          }}
-          className="w-full flex justify-center items-center gap-4 bg-black/[0.8] rounded-md mt-4 text-white"
-        >
-          <FaGithub className="w-5 h-5" />
-          <div className="w-40 flex justify-start">Continue with Github</div>
-        </Button> */}
+
       </Form.Item>
     </Form>
   );

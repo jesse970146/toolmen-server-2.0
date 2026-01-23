@@ -113,18 +113,9 @@ const WorkspaceItem = (props) => {
   const onJupyterHandler = () => {
     window.open(baseURL + "/jupyter/");
   };
-  // const onLabHandler = () => {
-  //   window.open(baseURL + "lab");
-  // };
-  // const onVSCodeHandler = () => {
-  //   window.open(baseURL + "tools/vscode");
-  // };
   const onDesktopHandler = () => {
     window.open(baseURL + "/vnc/vnc.html?path=/" + workspace.name +"/websockify?password=vncpasswd");
   };
-  // const onFileViewerHandler = () => {
-  //   window.open(baseURL + "shared/filebrowser/files/workspace/?token=admin");
-  // };
 
   if (workspace.status == "Running") {
     PowerButton = (
@@ -167,28 +158,6 @@ const WorkspaceItem = (props) => {
           <SiJupyter />
           Jupyter
         </Button>
-        {/* <Button
-          type=""
-          className="font-semibold text-gray-700"
-          // href={baseURL + "lab"}
-          // target="_blank"
-          onClick={() => {
-            onLabHandler();
-          }}
-        >
-          Lab
-        </Button> */}
-        {/* <Button
-          type=""
-          className="font-semibold text-gray-700"
-          // href={baseURL + "tools/vscode"}
-          // target="_blank"
-          onClick={() => {
-            onVSCodeHandler();
-          }}
-        >
-          VS Code
-        </Button> */}
         <Button
           type=""
           className="flex items-center font-semibold text-gray-700 rounded justify-center px-4 gap-2"
@@ -202,17 +171,6 @@ const WorkspaceItem = (props) => {
           <FaLinux />
           Desktop
         </Button>
-        {/* <Button
-          type=""
-          className="font-semibold text-gray-700"
-          // href={baseURL + "shared/filebrowser/files/workspace/?token=admin"}
-          // target="_blank"
-          onClick={() => {
-            onFileViewerHandler();
-          }}
-        >
-          File Viewer
-        </Button> */}
       </>
     );
     StatusTag = (
@@ -252,21 +210,7 @@ const WorkspaceItem = (props) => {
     );
     LinkButtons = (
       <>
-        {/* <Button type="" disabled className="font-semibold text-gray-700">
-          Jupyter
-        </Button> */}
-        {/* <Button type="" disabled className="font-semibold text-gray-700">
-          Lab
-        </Button> */}
-        {/* <Button type="" disabled className="font-semibold text-gray-700">
-          VS Code
-        </Button>
-        <Button type="" disabled className="font-semibold text-gray-700">
-          Desktop
-        </Button> */}
-        {/* <Button type="" disabled className="font-semibold text-gray-700">
-          File Viewer
-        </Button> */}
+        
       </>
     );
     StatusTag = (
@@ -282,19 +226,6 @@ const WorkspaceItem = (props) => {
 
   const menu = (
     <Menu>
-      {/* <Menu.Item
-        className="flex justify-center items-center px-4 text-gray-700"
-        icon={<FaClone className="" />}
-      >
-        1st menu item
-      </Menu.Item>
-      <Menu.Item
-        className="flex justify-center items-center px-4 text-gray-700"
-        icon={<FaClone className="" />}
-        onClick={() => {}}
-      >
-        2nd menu item
-      </Menu.Item> */}
       <Menu.Item
         className="flex justify-center items-center px-4 text-gray-700"
         icon={<FaRedo className="" />}
@@ -331,8 +262,6 @@ const WorkspaceItem = (props) => {
         <div className="mr-1">
           {BigLogo}
           <div className="flex items-center justify-center gap-2 pb-2">
-            {/* {ResetButton} */}
-            {/* {PowerButton} */}
           </div>
         </div>
 

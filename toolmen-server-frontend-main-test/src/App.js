@@ -11,7 +11,7 @@ import Homepage from "./pages/Homepage";
 import Loginpage from "./pages/Loginpage";
 import LoginWatingpage from "./pages/LoginWatingpage";
 import Loadingpage from "./pages/Loadingpage";
-import Signuppage from "./pages/Signuppage";
+
 import Errorpage from "./pages/Errorpage";
 
 function getCookie(name) {
@@ -123,7 +123,6 @@ const App = () => {
         <Router>
           <Routes>
             <Route path="/error" element={<Errorpage />} />
-            <Route path="/signup" element={<Signuppage />} />
             {routes}
           </Routes>
         </Router>

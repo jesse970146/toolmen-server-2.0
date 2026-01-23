@@ -132,14 +132,6 @@ const WorkspaceTab = ({isActive}) => {
             >
               <div>+ Create New Workspace</div>
             </Button>
-            {/* <Button
-              type="primary"
-              onClick={sendRequest}
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              <IoReload />
-              Reload
-            </Button> */}
           </div>
           <CreateNewWorkspace
             onClose={onClose}
@@ -151,11 +143,7 @@ const WorkspaceTab = ({isActive}) => {
         </div>
         <WorkspaceList items={loadedWorkspaces} sendRequest={sendRequest} />
       </section>
-      {/* <section className="w-80 lg:w-96">
-        <Card className="bg-white z-20" title="GPU Usage">
-          <GpuUsage />
-        </Card>
-      </section> */}
+
     </section>
   );
 };

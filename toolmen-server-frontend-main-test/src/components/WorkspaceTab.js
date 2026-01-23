@@ -14,7 +14,7 @@ const WorkspaceTab = ({isActive}) => {
   const [ImageList, setImageList] = useState([]);
   const sendImageRequest = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/image", {
+      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/images", {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
@@ -54,7 +54,7 @@ const WorkspaceTab = ({isActive}) => {
 
   const sendRequest = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL + "/workspace", {
+      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL + "/workspaces/" + auth.userID, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
@@ -63,7 +63,6 @@ const WorkspaceTab = ({isActive}) => {
         throw new Error(responseData.message);
       }
       setLoadedWorkspaces(responseData.workspaces);
-      // console.log(loadedWorkspaces);
       console.log(responseData.workspaces);
     } catch (err) {
       console.log(err);

@@ -48,7 +48,7 @@ const AdminTab_image = ({props, isActive}) => {
 
   const sendRequest = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/image", {
+      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/images", {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();

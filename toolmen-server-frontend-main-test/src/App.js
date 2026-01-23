@@ -68,6 +68,7 @@ const App = () => {
       if (!response.ok) {
         throw new Error(responseData.message);
       }
+      // console.log(responseData);
       setUserInfo(responseData);
     } catch (err) {
       console.log(err);

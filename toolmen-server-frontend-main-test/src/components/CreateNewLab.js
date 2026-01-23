@@ -38,7 +38,7 @@ const CreateNewLab = (props) => {
     setCreating(true);
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/lab" ,
+        process.env.REACT_APP_BACKEND_BASE_URL+ "/labs" ,
         {
           method: "POST",
           headers: {

@@ -39,7 +39,7 @@ const CreateNewUser = (props) => {
     setCreating(true);
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/user" ,
+        process.env.REACT_APP_BACKEND_BASE_URL+ "/users" ,
           // (form.getFieldValue("name") || "no-input"),
         {
           method: "POST",

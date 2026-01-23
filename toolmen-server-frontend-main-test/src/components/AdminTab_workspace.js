@@ -42,7 +42,7 @@ const AdminTab = ({props, isActive}) => {
   
   const sendRequest = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/workspace", {
+      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/workspaces", {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();

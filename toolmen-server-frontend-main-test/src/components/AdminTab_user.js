@@ -31,7 +31,7 @@ const AdminTab_user = ({isActive}) => {
   const [LabList, setLabList] = useState([]);
   const sendLabRequest = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/lab", {
+      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/labs", {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
@@ -53,7 +53,7 @@ const AdminTab_user = ({isActive}) => {
 
   const sendRequest = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/user`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/users`, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();

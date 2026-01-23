@@ -38,7 +38,7 @@ const CreateNewImage = (props) => {
     setCreating(true);
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/image" ,
+        process.env.REACT_APP_BACKEND_BASE_URL+ "/images" ,
           // (form.getFieldValue("name") || "no-input"),
         {
           method: "POST",

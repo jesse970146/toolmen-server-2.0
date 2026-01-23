@@ -32,9 +32,11 @@ app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 CORS(app, origins=[
     "https://server.toolmen.bime.ntu.edu.tw"
 ])
+# open local cors for local test
 # CORS(app, origins=[
 #     "http://localhost:3000"
 # ])
+
 api = Api(app)
 # cors = CORS(app)
 # CORS(app, origins=["http://server.toolmen.bime.ntu.edu.tw"], supports_credentials=True)
@@ -111,7 +113,7 @@ api.add_resource(LabList, "/labs")
 
 
 api.add_resource(User, "/user/<int:user_id>")
-api.add_resource(UserList, '/user')
+api.add_resource(UserList, '/users')
 
 api.add_resource(UserLogin, "/login")
 api.add_resource(UserLogout, "/logout")

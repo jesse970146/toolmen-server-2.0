@@ -1,10 +1,12 @@
 from datetime import timedelta
 
-DEBUG = False\
-
-
-# SQLALCHEMY_DATABASE_URI = "sqlite:///database/data.sqlite"
+# test for local
+# import os 
+# DEBUG = True
 # basedir = os.path.abspath(os.path.dirname(__file__))
+# SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "database", "data.sqlite")
+
+DEBUG = False
 # postgresql://使用者:密碼@主機:埠號/資料庫名稱 
 SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@192.168.23.11:30310/postgres"
 SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -84,7 +84,7 @@ class User(Resource):
     @jwt_required()
     def get(self, user_id: int):
         user = user_schema.dump(UserModel.find_by_id(user_id))
-        return {'users': user}, 200
+        return user, 200
     # def get(self, user_id: int):
     #     # print(user_id)
     #     user = UserModel.find_by_id(user_id)
@@ -123,13 +123,12 @@ class UserList(Resource):
     @admin_required()
     def post(self):
         user_json = request.get_json()
-        user_json["username"] = user_json.get("username", "").strip().replace(" ", "").lower # make sure the username doesn't have space
+        user_json["username"] = user_json.get("username", "").strip().replace(" ", "").lower() # make sure the username doesn't have space
         user = user_schema.load(user_json)
         if UserModel.find_by_username(user.username):
             abort(400, message="Username exists")
         password = generate_password(length=10, use_special=False) # generate random password
         user.password = sha512_crypt.hash(password)
-
         send_account_created_email(  # send email to the user 
             to_email = user_json["email"],
             user = user_json.get("username", ""),

@@ -5,6 +5,7 @@ from datetime import timedelta
 # DEBUG = True
 # basedir = os.path.abspath(os.path.dirname(__file__))
 # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "database", "data.sqlite")
+# SQLALCHEMY_DATABASE_URI = "postgresql://postgres:example@localhost:5432/postgres"
 
 DEBUG = False
 # postgresql://使用者:密碼@主機:埠號/資料庫名稱 

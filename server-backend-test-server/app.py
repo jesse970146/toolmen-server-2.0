@@ -29,6 +29,7 @@ app = Flask(__name__)
 app.config.from_object("default_config")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+app.config["JWT_BLOCKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
 CORS(app, origins=[
     "https://server.toolmen.bime.ntu.edu.tw"
 ])

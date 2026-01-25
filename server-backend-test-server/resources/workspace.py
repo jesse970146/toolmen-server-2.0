@@ -40,6 +40,7 @@ class Workspace(Resource):
             abort(401, message="Unauthorized")
 
         else:
+
             try:
                 r = requests.post(f'{api_k8s_base_url}/restart', json={
                     "name": name,
@@ -49,7 +50,7 @@ class Workspace(Resource):
             except Exception as e:
                 abort(500, message=str(e))
 
-        workspace.create_time = datetime.now(timezone(timedelta(hours=8)))
+        workspace.create_time = datetime.now()
         workspace.save_to_db()
         return {'message': 'Workspace restart.'}, 200
 
@@ -161,7 +162,8 @@ class WorkspaceList(Resource):
         workspace_json['image_name'] = workspace_json.get('image', '')
 
         try:
-            workspace = workspace_schema.load(workspace_json)       
+            workspace = workspace_schema.load(workspace_json)
+            workspace.create_time = datetime.now()
             workspace.save_to_db()
         except:
             abort(500, message="An error occurred inserting the workspace to DB.")
@@ -183,7 +185,7 @@ class WorkspaceList(Resource):
 
             # 創立成功在更改狀態為無狀態
             workspace_json['status'] = ""
-            workspace = workspace_schema.load(workspace_json)       
+            workspace = workspace_schema.load(workspace_json)
             workspace.save_to_db()
 
         except Exception as e:
@@ -209,12 +211,12 @@ class WorkspaceLists(Resource):
                             ws.status = data["status"]
                         else:
                             print("API 請求失敗", response.status_code)
-                            ws.status = f"unknown"
-                            ws.save_to_db()
+                            ws.status = f"Unknown"
+                            # ws.save_to_db()
 
                     except Exception as e:
-                        ws.status = f"unknown"
-                        ws.save_to_db()
+                        ws.status = f"Unknown"
+                        # ws.save_to_db()
 
                 except ObjectDeletedError:
                     # 這是本次修復的重點：

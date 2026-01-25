@@ -40,7 +40,7 @@ const CreateNewWorkspace = (props) => {
     setCreating(true);
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/workspace" ,
+        process.env.REACT_APP_BACKEND_BASE_URL+ "/workspaces" ,
         {
           method: "POST",
           headers: {

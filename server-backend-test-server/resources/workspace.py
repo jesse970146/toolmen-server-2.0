@@ -40,7 +40,6 @@ class Workspace(Resource):
             abort(401, message="Unauthorized")
 
         else:
-
             try:
                 r = requests.post(f'{api_k8s_base_url}/restart', json={
                     "name": name,
@@ -108,12 +107,12 @@ class WorkspaceList(Resource):
                             ws.status = data["status"]
                         else:
                             print("API 請求失敗", response.status_code)
-                            ws.status = f"unknown"
+                            ws.status = f"Unknown"
                             ws.save_to_db()
 
                     except Exception as e:
                         # 這是處理 requests連線錯誤 (例如 K8s API 掛掉)
-                        ws.status = f"unknown"
+                        ws.status = f"Unknown"
                         ws.save_to_db()
 
                 except ObjectDeletedError:

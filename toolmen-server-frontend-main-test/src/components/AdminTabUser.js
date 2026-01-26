@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Table, Dropdown, Menu, message, Modal, Space } from "antd";
+import { Button, Table, Dropdown, message, Modal, } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { FaPlus } from "react-icons/fa6";
 import AuthContext from "../context/auth-context";
 import CreateNewUser from "./CreateNewUser";
 import EditUser from "./EditUser";
 
-const AdminTab_user = ({ isActive }) => {
+const AdminTabUser = ({ isActive }) => {
   const auth = useContext(AuthContext);
 
   // 狀態管理
@@ -294,4 +294,4 @@ const AdminTab_user = ({ isActive }) => {
   );
 };
 
-export default AdminTab_user;
+export default AdminTabUser;

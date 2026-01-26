@@ -10,7 +10,6 @@ import {
 import { 
   FileImageOutlined, 
   CloudServerOutlined, 
-  InfoCircleOutlined 
 } from "@ant-design/icons";
 import AuthContext from "../context/auth-context";
 

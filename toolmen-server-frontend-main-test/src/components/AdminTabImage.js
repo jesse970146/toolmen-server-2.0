@@ -4,7 +4,7 @@ import { FaPlus } from "react-icons/fa6";
 import AuthContext from "../context/auth-context";
 import CreateNewImage from "./CreateNewImage";
 
-const AdminTab_image = ({ isActive }) => {
+const AdminTabImage = ({ isActive }) => {
   const auth = useContext(AuthContext);
 
   // 狀態管理
@@ -171,4 +171,4 @@ const AdminTab_image = ({ isActive }) => {
   );
 };
 
-export default AdminTab_image;
+export default AdminTabImage;

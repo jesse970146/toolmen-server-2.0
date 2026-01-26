@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Button, Table, message, Modal, Space } from "antd";
 import { FaPlus } from "react-icons/fa6";
-import { IoReload } from "react-icons/io5"; // 保留 Reload Icon 以備不時之需
 import AuthContext from "../context/auth-context";
 import CreateNewLab from "./CreateNewLab";
 
-const AdminTab_lab = ({ isActive }) => {
+const AdminTabLab = ({ isActive }) => {
   const auth = useContext(AuthContext);
   
   // 狀態管理
@@ -159,4 +158,4 @@ const AdminTab_lab = ({ isActive }) => {
   );
 };
 
-export default AdminTab_lab;
+export default AdminTabLab;

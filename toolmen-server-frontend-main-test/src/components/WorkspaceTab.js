@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Alert, Progress, message, Tooltip, Typography } from "antd";
-import { PlusOutlined, BugOutlined } from "@ant-design/icons"; // 引入 Ant Icons
+import { Button, Progress, message, Tooltip, Typography } from "antd";
+import { PlusOutlined } from "@ant-design/icons"; // 引入 Ant Icons
 
 import WorkspaceList from "./WorkspaceList";
 import CreateNewWorkspace from "./CreateNewWorkspace";
@@ -16,7 +16,7 @@ const WorkspaceTab = ({ isActive }) => {
   const [nodeList, setNodeList] = useState([]);
   const [loadedWorkspaces, setLoadedWorkspaces] = useState([]);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+
 
   // 通用的 Fetch 處理函式 (DRY 原則)
   const fetchData = useCallback(async (endpoint, setter) => {
@@ -46,7 +46,6 @@ const WorkspaceTab = ({ isActive }) => {
 
   // 載入 Drawer 需要的資源 (Image & Node)
   const fetchResources = async () => {
-    setLoading(true);
     try {
       await Promise.all([
         fetchData("/images", (data) => setImageList(data.images || [])),
@@ -54,8 +53,6 @@ const WorkspaceTab = ({ isActive }) => {
       ]);
     } catch (error) {
       message.error("Failed to load resources");
-    } finally {
-      setLoading(false);
     }
   };
 

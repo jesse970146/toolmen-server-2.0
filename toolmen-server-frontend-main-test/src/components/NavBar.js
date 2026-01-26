@@ -3,7 +3,6 @@ import { Dropdown, Avatar } from "antd";
 import {
   LogoutOutlined,
   SettingOutlined,
-  AppstoreOutlined,
   QuestionCircleOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";

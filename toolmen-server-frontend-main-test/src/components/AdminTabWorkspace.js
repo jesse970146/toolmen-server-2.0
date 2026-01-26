@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Button, Table, message, Modal, Space } from "antd";
 import AuthContext from "../context/auth-context";
 
-const AdminTab_workspace = ({ isActive }) => {
+const AdminTabWorkspace = ({ isActive }) => {
   const auth = useContext(AuthContext);
 
   // 狀態管理
@@ -157,4 +157,4 @@ const AdminTab_workspace = ({ isActive }) => {
   );
 };
 
-export default AdminTab_workspace;
+export default AdminTabWorkspace;

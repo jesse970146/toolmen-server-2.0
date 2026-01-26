@@ -1,14 +1,12 @@
-from kubernetes import client, config
-from jinja2 import Template
-from flask import Flask, jsonify, redirect, request, abort
-import yaml
-import re
 import os
+import yaml
+from jinja2 import Template
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+from kubernetes import client, config
 from dotenv import load_dotenv
 
 load_dotenv(".env")
-
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -83,23 +81,6 @@ def get_nodes():
     """ return a list of node name"""
     return [node.metadata.name for node in core_v1_api.list_node().items]
     
-
-@app.route("/")
-def hello():
-    """ Hello """
-    return ok()
-
-# @app.route("/node/<lab>")
-# def get_nodes_with_label(lab):
-#     """Return a list of node names with the specified label (via GET query param)"""
-#     if not lab:
-#         return jsonify({"error": "Missing 'lab' query parameter"}), 400
-
-#     label_selector = f"lab={lab}"
-#     nodes = core_v1_api.list_node(label_selector=label_selector).items
-#     node_names = [node.metadata.name for node in nodes]
-#     return jsonify(node_names)
-
 @app.route("/node/<lab>")
 def get_nodes_with_label(lab):
     """Return a list of node names where 'lab' label contains the input substring"""
@@ -142,23 +123,13 @@ def create():
     """
     # read and handle error
     data = request.get_json()
-    print(data)
+
     name = data['name']
-    print(name)
+
     # check if node exists
     if not (data.get('node') and data.get('node') in get_nodes()):
         print(f"{data.get('node')} not found. Using {get_nodes()[0]} instead.")
         data['node'] = get_nodes()[0]
-    print(data)
-    # render pod
-    # text_pod = open("template/pod.yml").read()
-    # template_pod = Template(text_pod).render({
-    #     **data,
-    #     "namespace": ns
-    # })
-    # template_pod = yaml.load(template_pod, Loader=yaml.FullLoader)
-    
-    # core_v1_api.create_namespaced_pod(ns, template_pod)
 
     # render deployment
     text_deploy = open("template/deployment.yml").read()
@@ -167,7 +138,6 @@ def create():
         "namespace": ns
     })
     template_deploy = yaml.load(template_deploy, Loader=yaml.FullLoader)
-
     apps_v1_api.create_namespaced_deployment(namespace=ns, body=template_deploy)
     
     # service
@@ -179,7 +149,7 @@ def create():
     template_service = yaml.load(template_service, Loader=yaml.FullLoader)
     core_v1_api.create_namespaced_service(ns, template_service)
     
-    # # ingress
+    # ingress
     text_ingress = open("template/ingress.yml").read()
     template_ingress = Template(text_ingress).render({
         'namespace': ns,
@@ -189,7 +159,7 @@ def create():
     template_ingress = yaml.load(template_ingress, Loader=yaml.FullLoader)
     networking_v1_api.create_namespaced_ingress(ns, template_ingress)
 
-    # # pipe
+    # pipe
     text_pipe = open("template/pipe.yml").read()
     template_pipe = Template(text_pipe).render({
         'namespace': ns,
@@ -198,11 +168,11 @@ def create():
     })
     template_pipe = yaml.load(template_pipe, Loader=yaml.FullLoader)
     custom_v1_api.create_namespaced_custom_object(
-    group= "sshpiper.com",
-    version= "v1beta1",
-    namespace= ns,
-    plural= "pipes",
-    body= template_pipe
+        group= "sshpiper.com",
+        version= "v1beta1",
+        namespace= ns,
+        plural= "pipes",
+        body= template_pipe
     )
     
     return ok()
@@ -215,12 +185,10 @@ def delete():
     The task will not be done when giving out response.
     Should use "search" to check.
     """
-
     data = request.get_json()
     name = data['name']
-    apps_v1_api.delete_namespaced_deployment(name, ns)
-    # core_v1_api.delete_namespaced_pod(name, ns)
-    
+
+    apps_v1_api.delete_namespaced_deployment(name, ns)  
     core_v1_api.delete_namespaced_service(name, ns)
     networking_v1_api.delete_namespaced_ingress(name, ns)
     custom_v1_api.delete_namespaced_custom_object(

@@ -114,7 +114,14 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
       <Card
         loading={loading}
         className="flex flex-col h-full hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden border-gray-200"
-        bodyStyle={{ padding: "0", display: "flex", flexDirection: "column", height: "100%" }}
+        styles={{ 
+          body: { 
+            padding: "0",
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+          } 
+        }}
       >
         {/* Header */}
         <div className={`px-5 py-4 flex justify-between items-center border-b ${isRunning ? "bg-green-50/60" : "bg-gray-50"}`}>

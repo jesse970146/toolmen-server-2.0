@@ -3,6 +3,7 @@ import {
   Button,
   Drawer,
   Form,
+  Space,
   Input,
   Select,
   notification,
@@ -74,6 +75,8 @@ const CreateNewWorkspace = (props) => {
     props.onClose();
   };
 
+  const prefixLabel = auth.userInfo?.username ? `${auth.userInfo.username}-` : null;
+
   return (
     <Drawer
       className="select-none"
@@ -115,12 +118,27 @@ const CreateNewWorkspace = (props) => {
           name="name"
           label="Name"
         >
-          <Input 
-            prefix={<DesktopOutlined className="text-gray-400" />} 
-            addonBefore={auth.userInfo?.username ? `${auth.userInfo.username}-` : ""}
-            placeholder="Please enter a workspace name" 
-            size="large"
-          />
+          <Space.Compact style={{ width: '100%' }}>
+            {/* 2. 把 addonBefore 變成一個「偽裝成標籤」的 Button */}
+            {prefixLabel && (
+              <Button 
+                type="default" 
+                size="large" // 記得跟 Input 一樣大
+                className="!cursor-default !bg-gray-50 !text-gray-500 hover:!border-gray-300 hover:!text-gray-500" // Tailwind 輔助樣式：禁止游標、灰色背景
+                style={{ pointerEvents: 'none' }} // 讓它點擊無效，感覺更像 Label
+              >
+                {prefixLabel}
+              </Button>
+            )}
+
+            {/* 3. Input 本體 */}
+            <Input
+              prefix={<DesktopOutlined className="text-gray-400" />}
+              placeholder="Please enter a workspace name"
+              size="large"
+              // 這裡不需要 addonBefore 了
+            />
+          </Space.Compact>
         </Form.Item>
 
         <Form.Item
@@ -158,7 +176,7 @@ const CreateNewWorkspace = (props) => {
             placeholder="Please select an image"
             size="large"
             optionLabelProp="label" 
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             listHeight={400}
           >
             {props.ImageList.map((image) => {

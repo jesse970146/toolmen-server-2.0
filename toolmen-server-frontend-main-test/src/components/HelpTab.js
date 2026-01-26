@@ -26,17 +26,24 @@ const HelpTab = () => {
       </div>
 
       {/* 2. Video Tutorial Section (預留區塊) */}
-      <Card className="mb-10 shadow-sm border-gray-200 overflow-hidden" bodyStyle={{ padding: 0 }}>
+      <Card 
+        className="mb-10 shadow-sm border-gray-200 overflow-hidden"
+        styles={{ 
+          body: { 
+            padding: "0",
+          } 
+        }}
+      >
         {/* 移除 group cursor-pointer，保留比例容器 */}
         <div className="w-full aspect-video bg-black flex flex-col items-center justify-center relative">
           
           {/* 直接放入 iframe，並填上您的影片 ID */}
           <iframe 
+            className="border-0" 
             width="100%" 
             height="100%" 
             src={process.env.REACT_APP_YOUTUBE_TUTORIAL_SITE}
             title="Toolmen Tutorial" 
-            frameBorder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowFullScreen 
           ></iframe>

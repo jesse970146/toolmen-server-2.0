@@ -1,17 +1,9 @@
-const CracoLessPlugin = require('craco-less');
+const path = require('path');
 
 module.exports = {
-  plugins: [
-    {
-      plugin: CracoLessPlugin,
-      options: {
-        lessLoaderOptions: {
-          lessOptions: {
-            modifyVars: { "@select-single-item-height-lg": "75px" , "@primary-color": "#3b82f6"},
-            javascriptEnabled: true,
-          },
-        },
-      },
+  style: {
+    postcss: {
+      mode: 'file', // 告訴 Craco 去找 postcss.config.js
     },
-  ],
+  },
 };

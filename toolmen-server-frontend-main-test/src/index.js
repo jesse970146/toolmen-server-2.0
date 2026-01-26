@@ -1,7 +1,7 @@
 import React from "react";
 // 注意這裡路徑變了，多了一個 /client
 import { createRoot } from "react-dom/client"; 
-import "./index.less"; // 這是你的 CSS 檔，保留原本的即可
+import "./index.css"; // 這是你的 CSS 檔，保留原本的即可
 import App from "./App";
 // import reportWebVitals from "./reportWebVitals"; // 如果你有用這個就保留
 

@@ -4,12 +4,10 @@ import {
   LoginOutlined, 
   PlusCircleOutlined, 
   CodeOutlined, 
-  YoutubeOutlined,
   InfoCircleOutlined
 } from "@ant-design/icons";
 
 // Images
-import workspaceImg from "../assets/images/workspace.png";
 import createWorkspaceImg from "../assets/images/createWorkspace.png";
 import homepageImg from "../assets/images/Homepage.png";
 
@@ -36,21 +34,13 @@ const HelpTab = () => {
           <iframe 
             width="100%" 
             height="100%" 
-            src="https://www.youtube.com/embed/Mwd0Voio0-I" 
+            src={process.env.REACT_APP_YOUTUBE_TUTORIAL_SITE}
             title="Toolmen Tutorial" 
             frameBorder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowFullScreen 
           ></iframe>
 
-          {/* 原本的 YoutubeOutlined 和文字都刪除，否則會擋在影片上面 */}
-        
-        </div>
-        <div className="p-4 bg-gray-50 border-t border-gray-100">
-          <Text strong>🎥 Watch the full walkthrough</Text>
-          <Text type="secondary" className="ml-2">
-            Learn how to create and manage your environment in 3 minutes.
-          </Text>
         </div>
       </Card>
 

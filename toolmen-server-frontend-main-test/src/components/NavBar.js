@@ -26,7 +26,24 @@ const NavBar = () => {
     return avatar.toString(); // 注意：新版 DiceBear 使用 toString()
   }, [auth.userInfo?.username]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/logout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + auth.token,
+          },
+        }
+    );
+    
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.message || "Logout failed");
+    }
+
     auth.logout();
     navigate("/login");
   };

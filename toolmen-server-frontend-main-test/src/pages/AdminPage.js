@@ -48,25 +48,25 @@ const AdminPage = () => {
           className="admin-tabs" // 如果需要寫 CSS 可以用這個
         >
           {/* 內容跟上面一樣，只是排版會自動變 */}
-          <TabPane tab={renderTabTitle("Workspace List", AppstoreOutlined)} key="admin-ws">
+          <TabPane tab={renderTabTitle("Workspaces", AppstoreOutlined)} key="admin-ws">
             <div className="px-4">
                <AdminTab_workspace isActive={adminActiveTab === "admin-ws"} />
             </div>
           </TabPane>
           
-          <TabPane tab={renderTabTitle("User Management", TeamOutlined)} key="admin-user">
+          <TabPane tab={renderTabTitle("Users", TeamOutlined)} key="admin-user">
              <div className="px-4">
                 <AdminTab_user isActive={adminActiveTab === "admin-user"} />
              </div>
           </TabPane>
           
-          <TabPane tab={renderTabTitle("Docker Images", CloudServerOutlined)} key="admin-image">
+          <TabPane tab={renderTabTitle("Images", CloudServerOutlined)} key="admin-image">
              <div className="px-4">
                 <AdminTab_image isActive={adminActiveTab === "admin-image"} />
              </div>
           </TabPane>
           
-          <TabPane tab={renderTabTitle("Lab Config", ExperimentOutlined)} key="admin-lab">
+          <TabPane tab={renderTabTitle("Labs", ExperimentOutlined)} key="admin-lab">
              <div className="px-4">
                 <AdminTab_lab isActive={adminActiveTab === "admin-lab"} />
              </div>

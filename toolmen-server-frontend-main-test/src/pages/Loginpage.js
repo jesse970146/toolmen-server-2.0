@@ -79,7 +79,7 @@ const Loginpage = () => {
 
       <NavBar />
       
-      <div className="z-0 bg-gray-100 flex-1 flex items-center justify-center px-6 xl:px-44">
+      <div className="z-0 bg-white flex-1 flex items-center justify-center px-6 xl:px-44">
         <div className="rounded-xl w-full max-w-6xl flex flex-col lg:flex-row items-center justify-center gap-8">
           
           {/* 左側圖片 */}

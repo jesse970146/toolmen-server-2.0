@@ -107,13 +107,13 @@ const CreateNewUser = (props) => {
       className="select-none"
       title="Create New User"
       placement="right"
-      width={560}
+      size={560}
       // onClose={props.onClose}
       onClose={() => {
         form.resetFields();
         props.onClose();  // 再執行原本傳進來的函式
       }}
-      visible={props.visible}
+      open={props.visible}
       // extra={
       //   <Space>
       //     <Button onClick={props.onClose} disabled={creating} className="">

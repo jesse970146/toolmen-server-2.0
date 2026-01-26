@@ -37,7 +37,7 @@ const MainLayout = () => {
     <div className="flex flex-col min-h-screen">
       <NavBar />
       {/* Outlet 是 React Router 用來渲染子路由內容的地方 */}
-      <div className="flex-auto bg-gray-100 pt-8 px-6 xl:px-44 pb-12">
+      <div className="flex-auto bg-white pt-8 px-6 xl:px-44 pb-12">
          <Outlet />
       </div>
       <Footer />

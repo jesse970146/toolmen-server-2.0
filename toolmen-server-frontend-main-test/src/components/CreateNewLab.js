@@ -80,7 +80,7 @@ const CreateNewLab = (props) => {
         form.resetFields();
         props.onClose();  // 再執行原本傳進來的函式
       }}
-      visible={props.visible}
+      open={props.visible}
       // extra={
       //   <Space>
       //     <Button onClick={props.onClose} disabled={creating} className="">

@@ -95,9 +95,9 @@ const EditUser = (props) => {
       className="select-none"
       title="Edit User"
       placement="right"
-      width={560}
+      size={560}
       onClose={props.onClose}
-      visible={props.visible}
+      open={props.visible}
       // extra={
       //   <Space>
       //     <Button onClick={props.onClose} disabled={editing} className="">

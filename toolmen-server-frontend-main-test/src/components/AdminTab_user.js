@@ -222,22 +222,27 @@ const AdminTab_user = ({ isActive }) => {
       fixed: 'right',
       render: (_, user) => {
         // Dropdown Menu 內容
-        const menu = (
-          <Menu>
-            <Menu.Item key="edit" onClick={() => showEditUserDrawer(user)}>
-              Edit User
-            </Menu.Item>
-            <Menu.Item key="forget" onClick={() => handleResetPassword(user)}>
-              Reset Password
-            </Menu.Item>
-            <Menu.Item key="delete" danger onClick={() => handleDeleteUser(user)}>
-              Delete
-            </Menu.Item>
-          </Menu>
-        );
+        const items = [
+          {
+            key: 'edit',
+            label: 'Edit User',
+            onClick: () => showEditUserDrawer(user),
+          },
+          {
+            key: 'forget',
+            label: 'Reset Password',
+            onClick: () => handleResetPassword(user),
+          },
+          {
+            key: 'delete',
+            label: 'Delete',
+            danger: true, // v5 可以直接設定危險按鈕 (紅色)
+            onClick: () => handleDeleteUser(user),
+          },
+        ];
 
         return (
-          <Dropdown overlay={menu} trigger={['click']}>
+          <Dropdown menu={{ items }} trigger={['click']}>
             <Button>
               Actions <DownOutlined />
             </Button>

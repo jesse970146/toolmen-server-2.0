@@ -66,6 +66,15 @@ class Workspace(Resource):
         if workspace.user_name != current_user.username and (not current_user.is_admin):
             abort(401, message="Unauthorized")
 
+        elif current_user.is_admin: # admin強制刪除
+            try:
+                r = requests.post(f'{api_k8s_base_url}/delete', json={
+                    "name": name,
+                })
+                if not r.status_code == requests.codes.ok:
+                    abort(500)
+            except Exception as e:
+                pass
         else:
             workspace.status = "Deleting"
             workspace.save_to_db()
@@ -162,7 +171,6 @@ class WorkspaceList(Resource):
             workspace.save_to_db()
         except:
             abort(500, message="An error occurred inserting the workspace to DB.")
-
 
         try:
             r = requests.post(f'{api_k8s_base_url}/create', json={

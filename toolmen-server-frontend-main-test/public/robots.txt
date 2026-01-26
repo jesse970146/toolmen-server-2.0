@@ -1,3 +1,20 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+
+# ✅ 允許抓取首頁 (通常是 Login 頁)
+Allow: /$
+
+# ✅ 允許抓取公開的說明文件或幫助頁面 (如果有獨立路徑)
+Allow: /help
+
+# ❌ 禁止抓取後台管理介面
+Disallow: /admin
+Disallow: /admin/*
+
+# ❌ 禁止抓取使用者私有頁面 (雖然有 Auth 擋，但聲明清楚比較好)
+Disallow: /workspaces
+Disallow: /users
+Disallow: /images
+Disallow: /labs
+
+# ❌ 禁止抓取錯誤頁面
+Disallow: /error

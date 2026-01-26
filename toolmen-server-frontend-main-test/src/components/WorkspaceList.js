@@ -1,35 +1,43 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Empty } from "antd";
-
 import WorkspaceItem from "./WorkspaceItem";
 
-import AuthContext  from "../context/auth-context";
-
-const WorkspaceList = (props) => {
-  const auth = useContext(AuthContext);
-
-  if (props.items.length === 0) {
+const WorkspaceList = ({ items, sendRequest }) => {
+  if (!items || items.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center mt-8">
-        <Empty description={false} />
-        <div className="text-md font-semibold text-gray-500 mt-2">
-          There is no workspace here. Create one now!
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="flex flex-col gap-6">
-        {props.items.map((item) => (
-          <WorkspaceItem
-            key={item.name}
-            w={item}
-            sendRequest={props.sendRequest}
-          />
-        ))}
+      <div className="flex flex-col justify-center items-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300 mx-4">
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <div className="flex flex-col items-center">
+              <span className="text-gray-500 font-medium text-lg">
+                No workspaces found
+              </span>
+              <span className="text-gray-400 text-sm mt-1">
+                Click the "Create New Workspace" button to get started.
+              </span>
+            </div>
+          }
+        />
       </div>
     );
   }
+
+  return (
+    // 修改重點：
+    // 1. md:grid-cols-2 (平板顯示 2 個)
+    // 2. xl:grid-cols-3 (大螢幕顯示 3 個) -> 以前是 4 個，現在改 3 個讓空間更大
+    // 3. gap-8 (增加卡片間距)
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 pb-12">
+      {items.map((item) => (
+        <WorkspaceItem
+          key={item.id || item.name} 
+          w={item}
+          sendRequest={sendRequest}
+        />
+      ))}
+    </div>
+  );
 };
 
 export default WorkspaceList;

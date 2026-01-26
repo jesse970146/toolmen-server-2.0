@@ -119,7 +119,6 @@ const AdminTab_workspace = ({ isActive }) => {
       key: "create_time",
       width: 200,
       sorter: (a, b) => new Date(a.create_time) - new Date(b.create_time),
-      render: (text) => text ? new Date(text).toLocaleString() : "-",
     },
     {
       title: "Actions",

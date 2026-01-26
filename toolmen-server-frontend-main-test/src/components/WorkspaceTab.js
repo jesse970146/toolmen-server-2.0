@@ -1,160 +1,167 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Button, Card } from "antd";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { Button, Alert, Progress, message, Tooltip, Typography } from "antd";
+import { PlusOutlined, BugOutlined } from "@ant-design/icons"; // 引入 Ant Icons
 
 import WorkspaceList from "./WorkspaceList";
 import CreateNewWorkspace from "./CreateNewWorkspace";
-
-
 import AuthContext from "../context/auth-context";
-import { IoReload } from "react-icons/io5";
-const WorkspaceTab = ({isActive}) => {
+
+const { Text } = Typography;
+
+const WorkspaceTab = ({ isActive }) => {
   const auth = useContext(AuthContext);
-  // console.log("🔍 isActive:", isActive);
-  //fetch image
-  const [ImageList, setImageList] = useState([]);
-  const sendImageRequest = async () => {
-    try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/images", {
-        headers: { Authorization: "Bearer " + auth.token },
-      });
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      setImageList(responseData.images);
-      console.log(responseData.images);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  //
-  const [NodeList, setNodeList] = useState([]);
-  const sendNodeRequest = async () => {
-    try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/node", {
-        headers: { Authorization: "Bearer " + auth.token },
-      });
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      setNodeList(responseData.nodes);
-      console.log(responseData.nodes);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  //
-
-
+  
+  // 狀態管理 (改為 camelCase)
+  const [imageList, setImageList] = useState([]);
+  const [nodeList, setNodeList] = useState([]);
   const [loadedWorkspaces, setLoadedWorkspaces] = useState([]);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const sendRequest = async () => {
+  // 通用的 Fetch 處理函式 (DRY 原則)
+  const fetchData = useCallback(async (endpoint, setter) => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL + "/workspaces/" + auth.userID, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}${endpoint}`, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message);
+        throw new Error(responseData.message || "Request failed");
       }
-      setLoadedWorkspaces(responseData.workspaces);
-      console.log(responseData.workspaces);
+      setter(responseData);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      // 可以在這裡加入 message.error(err.message) 但為了避免輪詢時一直報錯，暫時保留 console
+    }
+  }, [auth.token]);
+
+  // 載入 Workspaces 的具體動作
+  const fetchWorkspaces = useCallback(async () => {
+    // 這裡不設 loading，避免輪詢時畫面閃爍
+    await fetchData(`/workspaces/${auth.userID}`, (data) => {
+      setLoadedWorkspaces(data.workspaces || []);
+    });
+  }, [fetchData, auth.userID]);
+
+  // 載入 Drawer 需要的資源 (Image & Node)
+  const fetchResources = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchData("/images", (data) => setImageList(data.images || [])),
+        fetchData("/node", (data) => setNodeList(data.nodes || []))
+      ]);
+    } catch (error) {
+      message.error("Failed to load resources");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // 處理輪詢 (Polling)
   useEffect(() => {
     if (!isActive) return;
 
-    sendRequest(); // 初次呼叫
-    const interval = setInterval(sendRequest, 5000); // 每 5 秒輪詢
+    fetchWorkspaces(); // 初次立即呼叫
+    const interval = setInterval(fetchWorkspaces, 5000); // 每 5 秒輪詢
 
-    return () => clearInterval(interval); // 當 isActive 變為 false 時停止
-  }, [isActive]);
+    return () => clearInterval(interval);
+  }, [isActive, fetchWorkspaces]);
 
-  useEffect(() => {
-      sendRequest();
-  }, []);
-
-  const [visible, setVisible] = useState(false);
+  // 開啟 Drawer
   const showDrawer = () => {
-    sendNodeRequest();
-    sendImageRequest();
-    setVisible(true);
+    fetchResources(); // 開啟時才讀取資源，節省流量
+    setDrawerVisible(true);
   };
+
   const onClose = () => {
-    setVisible(false);
+    setDrawerVisible(false);
   };
+
+  // 計算 Quota
+  const currentCount = loadedWorkspaces.length;
+  const maxQuota = auth.userInfo.quota || 0;
+  const isQuotaReached = currentCount >= maxQuota;
+  const quotaPercent = Math.round((currentCount / maxQuota) * 100);
 
   return (
-    <section className="w-full flex gap-8 pb-12 pt-4">
-      <section className="flex-auto flex flex-col gap-6">
-        <div style={style.bgImageCard} className=" h-12 w-full rounded-md">
-          <div
-            style={style.overlay}
-            className="flex items-center justify-between px-4 h-12 rounded-md"
-          >
-            <span className="text-white">
-              Please note that this service is still under development.
-            </span>
-            <Button
-              ghost
-              size="small"
-              shape="round"
-              onClick={() => window.open("https://forms.gle/kLpS3czCssVTpQjz6", "_blank")}
-            >
-              Report a bug / Wish list
-            </Button>
+    <section className="w-full max-w-7xl mx-auto px-4 pb-12 pt-6 flex flex-col gap-6">
+      
+      {/* 控制列 & 狀態顯示 */}
+      <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 border-b border-gray-100 pb-4">
+        
+        {/* 左側：Quota 顯示 */}
+        <div className="flex flex-col gap-1 w-full md:w-auto">
+          <div className="flex items-baseline gap-2">
+            <Text strong className="text-xl text-gray-700">My Workspaces</Text>
+            <Text type="secondary" className="text-sm">
+              ({currentCount} / {maxQuota})
+            </Text>
           </div>
-        </div>
-        <div className="flex justify-between items-center h-8">
-          <div className="text-xl font-semibold text-gray-700 flex flex-col">
-            {loadedWorkspaces.length} of {auth.userInfo.quota} workspaces
-            created
-            {loadedWorkspaces.length >= auth.userInfo.quota && (
-              <span className="text-gray-500 font-normal text-xs">
-                You have reached the maximum number of workspaces
-              </span>
+          
+          <div className="flex items-center gap-3 w-full md:w-64">
+            <Progress 
+              percent={quotaPercent} 
+              size="small" 
+              status={isQuotaReached ? "exception" : "active"} 
+              showInfo={false}
+              strokeColor={isQuotaReached ? "#ff4d4f" : "#1890ff"}
+            />
+            {isQuotaReached && (
+              <span className="text-red-500 text-xs whitespace-nowrap">Limit Reached</span>
             )}
           </div>
-          <div className="flex gap-2">
+        </div>
+
+        {/* 右側：動作按鈕 */}
+        <div>
+           <Tooltip title={isQuotaReached ? "You have reached the maximum number of workspaces" : "Create a new workspace environment"}>
             <Button
               type="primary"
               onClick={showDrawer}
-              disabled={loadedWorkspaces.length >= auth.userInfo.quota}
-              className=" flex justify-center items-center rounded-md gap-1 bg-blue-500"
+              disabled={isQuotaReached}
+              size="large"
+              // 1. 移除 flex items-center (由內部 div 接手控制)
+              // 2. 加上 border-transparent 避免 disabled 時邊框造成的 1px 位移
+              className={`rounded-md shadow-sm border-transparent ${
+                isQuotaReached 
+                  ? 'bg-gray-400 text-gray-100 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              <div>+ Create New Workspace</div>
+              {/* 3. 使用內部容器強制對齊 */}
+              <div className="flex items-center justify-center gap-1.5 h-full">
+                {/* 4. 圖示：加上 flex 確保它不會被當作文字處理 */}
+                <span className="flex items-center">
+                  <PlusOutlined />
+                </span>
+                
+                {/* 5. 文字：加上 leading-none (行高設為 1) 消除文字上下的隱形空間，這是防抖動的關鍵 */}
+                <span className="leading-none pb-[1px]">
+                  Create New Workspace
+                </span>
+              </div>
             </Button>
-          </div>
-          <CreateNewWorkspace
-            onClose={onClose}
-            visible={visible}
-            sendRequest={sendRequest}
-            ImageList={ImageList}
-            NodeList={NodeList}
-          />
+          </Tooltip>
         </div>
-        <WorkspaceList items={loadedWorkspaces} sendRequest={sendRequest} />
-      </section>
+      </div>
 
+      {/* 列表內容 */}
+      <div className="min-h-[200px]">
+        <WorkspaceList items={loadedWorkspaces} sendRequest={fetchWorkspaces} />
+      </div>
+
+      {/* 抽屜組件 */}
+      <CreateNewWorkspace
+        onClose={onClose}
+        visible={drawerVisible}
+        sendRequest={fetchWorkspaces}
+        ImageList={imageList} // 保持傳給子組件的 prop 名稱不變 (若子組件未改)
+        NodeList={nodeList}
+      />
     </section>
   );
-};
-
-const style = {
-  bgImageCard: {
-    backgroundImage: `url("https://images.unsplash.com/photo-1597649260558-e2bd7d35f043?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1051&q=80")`,
-    backgroundPosition: "center",
-  },
-  overlay: {
-    backgroundColor: "rgba(0,0,0,0.6)",
-  },
 };
 
 export default WorkspaceTab;

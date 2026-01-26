@@ -1,77 +1,78 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
   Button,
-  Space,
-  Select,
   Drawer,
   Form,
-  Row,
-  Col,
   Input,
+  Select,
   notification,
+  message,
 } from "antd";
-import { FiServer } from "react-icons/fi";
-import { CgServer } from "react-icons/cg";
-import { LiaDocker } from "react-icons/lia";
-
-import  AuthContext  from "../context/auth-context";
+import { 
+  DesktopOutlined, 
+  InfoCircleOutlined
+} from "@ant-design/icons";
+import { FiServer } from "react-icons/fi"; 
+import { LiaDocker } from "react-icons/lia"; 
+import AuthContext from "../context/auth-context";
 
 const { Option } = Select;
 
 const CreateNewWorkspace = (props) => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
-  const [creating, setCreating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
+  // Error Handler
   const onErrorHandler = (err) => {
-    notification["error"]({
+    notification.error({
       message: "Workspace Creation Failed!",
-      duration: 7,
-      description:
-        "An error has occurred. Please try again later. If you continue to encounter this problem, contact your admin. Error message: " +
-        err.message,
+      description: "An error has occurred. Please try again later. If you continue to encounter this problem, contact your admin. Error message: " + err.message,
       style: {
         width: 500,
       },
     });
   };
 
-  const workspaceCreate = async () => {
-    setCreating(true);
+  // Form Submission
+  const onFinish = async (values) => {
+    setSubmitting(true);
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/workspaces" ,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + auth.token,
-          },
-          body: JSON.stringify({
-            name: form.getFieldValue("name"),
-            image: form.getFieldValue("image"),
-            server: form.getFieldValue("server")
-          }),
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/workspaces`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth.token,
+        },
+        body: JSON.stringify({
+          name: values.name,
+          image: values.image,
+          server: values.server,
+        }),
+      });
+
       const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error(responseData.message);
+        throw new Error(responseData.message || "Something went wrong");
       }
-      props.sendRequest();
-      props.onClose();
-      setCreating(false);
+
+      // Using the original logic's success flow but with updated UI feedback if desired, 
+      // keeping strict to "don't touch logic" means we rely on props.sendRequest()
+      props.sendRequest(); 
+      handleClose(); 
     } catch (err) {
       onErrorHandler(err);
-      setCreating(false);
-      console.log(err);
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
-    form.resetFields();
   };
 
-  // 這裡要串接後端新增workspace
-  const onFinish = () => {
-    workspaceCreate();
+  // Unified Close Handler
+  const handleClose = () => {
+    form.resetFields();
+    props.onClose();
   };
 
   return (
@@ -80,139 +81,128 @@ const CreateNewWorkspace = (props) => {
       title="Create New Workspace"
       placement="right"
       width={560}
-      onClose={() => {
-        form.resetFields();
-        props.onClose();  // 再執行原本傳進來的函式
-      }}
+      onClose={handleClose}
       open={props.visible}
-    >
-      <Form
-        layout="vertical"
-        requiredMark="optional"
-        form={form}
-        onFinish={onFinish}
-      >
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="name"
-              label="Name"
-            >
-              <Input
-                placeholder="Please enter a workspace name"
-                addonBefore={auth.userInfo.username + "-"}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="server"
-              label="server"
-              rules={[{ required: true, message: "Please select an server" }]}
-            >
-              <Select
-                placeholder="Please select an server"
-                size="large"
-              >
-                {props.NodeList.map((nodeName) => (
-                  <Option key={nodeName} value={nodeName} className="h-20 pl-4">
-                    <div className="h-full flex gap-4 justify-between items-center">
-                      <FiServer className="h-8 w-8 text-gray-400" />
-                      <div className="flex-1 flex flex-col leading-tight">
-                        <div className="font-bold text-gray-700">{nodeName}</div>
-                      </div>
-                    </div>
-                  </Option>
-                ))}
-                {/* <Option value="server2" className="h-20 pl-4">
-                  <div className="h-full flex gap-4 justify-between items-center">
-                    <CgServer className="h-9 w-9 text-gray-400" />
-                    <div className="flex-1 flex flex-col leading-tight">
-                      <div className="font-bold text-gray-700">Server 2</div>
-                      <div className="text-gray-500 leading-tight text-sm">
-                        GeForce® GTX 1080 Ti × 2
-                      </div>
-                    </div>
-                  </div>
-                </Option>
-                <Option value="server4" className="h-20 pl-4">
-                  <div className="h-full flex gap-4 justify-between items-center">
-                    <FiServer className="h-8 w-8 text-gray-400" />
-                    <div className="flex-1 flex flex-col leading-tight">
-                      <div className="font-bold text-gray-700">Server 4</div>
-                      <div className="text-gray-500 leading-tight text-sm">
-                        NVIDIA Titan RTX × 2 <br /> GeForce® GTX 3070 Ti × 2
-                      </div>
-                    </div>
-                  </div>
-                </Option>
-                <Option value="server5" className="h-20 pl-4">
-                  <div className="h-full flex gap-4 justify-between items-center">
-                    <FiServer className="h-8 w-8 text-gray-400" />
-                    <div className="flex-1 flex flex-col leading-tight">
-                      <div className="font-bold text-gray-700">Server 5</div>
-                      <div className="text-gray-500 leading-tight text-sm">
-                        NVIDIA Titan RTX × 2 <br /> GeForce® GTX 3070 Ti × 2
-                      </div>
-                    </div>
-                  </div>
-                </Option> */}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="image"
-              label="Image"
-              rules={[{ required: true, message: "Please select an image" }]}
-            >
-              <Select
-                placeholder="Please select an image"
-                size="large"
-              >
-                {props.ImageList.map((image) => (
-                  <Option  value={image.name} className="h-24 pl-4">
-                    <div className="h-full flex gap-4 justify-between items-center min-w-0">
-                      <LiaDocker  className="h-8 w-8 text-gray-400" />
-                      <div className="flex-1 min-w-0 w-full flex flex-col leading-tight">
-                        <div className="font-bold text-gray-700">{image.name}</div>
-                        <div className="text-gray-500 leading-tight text-sm break-words whitespace-normal max-w-full overflow-hidden">
-                          {image.Description}
-                        </div>
-                      </div>
-                    </div>
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Space>
-          <Button
-            loading={creating}
-            type="primary"
-            className="bg-blue-500"
-            htmlType="submit"
-          >
-            {creating && "Creating"}
-            {!creating && "Create"}
-          </Button>
+      maskClosable={!submitting}
+      // Footer Actions moved to footer prop for better UI
+      footer={
+        <div className="flex justify-end gap-2">
           <Button 
-            onClick={() => {
-              form.resetFields();
-              props.onClose();  
-            }}
-            disabled={creating} 
-            className=""
+            onClick={handleClose} 
+            disabled={submitting}
           >
             Cancel
           </Button>
-        </Space>
+          <Button
+            onClick={() => form.submit()}
+            type="primary"
+            loading={submitting}
+            className="bg-blue-500"
+          >
+            {submitting ? "Creating" : "Create"}
+          </Button>
+        </div>
+      }
+    >
+      <Form
+        layout="vertical"
+        form={form}
+        onFinish={onFinish}
+        requiredMark="optional"
+      >
+        <h3 className="text-gray-500 text-xs font-bold uppercase mb-4 tracking-wider">Workspace Details</h3>
+
+        <Form.Item
+          name="name"
+          label="Name"
+        >
+          <Input 
+            prefix={<DesktopOutlined className="text-gray-400" />} 
+            addonBefore={auth.userInfo?.username ? `${auth.userInfo.username}-` : ""}
+            placeholder="Please enter a workspace name" 
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="server"
+          label="Server"
+          rules={[{ required: true, message: "Please select an server" }]}
+        >
+          <Select
+            placeholder="Please select an server"
+            size="large"
+            optionLabelProp="value"
+          >
+            {props.NodeList.map((nodeName) => (
+              <Option key={nodeName} value={nodeName} className="py-2">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gray-100 p-2 rounded-md text-gray-500">
+                    <FiServer size={18} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-700">{nodeName}</span>
+                    <span className="text-xs text-gray-400">Compute Node</span>
+                  </div>
+                </div>
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="image"
+          label="Image"
+          rules={[{ required: true, message: "Please select an image" }]}
+        >
+          <Select
+            placeholder="Please select an image"
+            size="large"
+            optionLabelProp="label" 
+            dropdownMatchSelectWidth={false}
+            listHeight={400}
+          >
+            {props.ImageList.map((image) => {
+              // Logic to handle optional name
+              const displayName = image.name || image.value;
+              const submitValue = image.name || image.value;
+              // Use value as key if available to ensure uniqueness
+              const uniqueKey = image.value || image.name || Math.random();
+
+              return (
+                <Option 
+                  key={uniqueKey} 
+                  value={submitValue} 
+                  label={displayName} 
+                  className="py-3 border-b last:border-0 border-gray-50"
+                >
+                  <div className="flex gap-3 min-w-0">
+                    <div className="mt-1">
+                      <LiaDocker className="h-6 w-6 text-blue-500" />
+                    </div>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="font-medium text-gray-800">
+                        {displayName}
+                      </span>                                     
+                      {image.Description && (
+                        <span className="text-xs text-gray-500 whitespace-normal break-words leading-tight mt-1">
+                          {image.Description}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
+
+        <div className="bg-blue-50 p-3 rounded-md flex gap-2 items-start mt-6">
+          <InfoCircleOutlined className="text-blue-500 mt-0.5" />
+          <p className="text-xs text-blue-600 m-0 leading-relaxed">
+            Note: Creating a workspace may take a few moments depending on the image size and server load.
+          </p>
+        </div>
       </Form>
     </Drawer>
   );

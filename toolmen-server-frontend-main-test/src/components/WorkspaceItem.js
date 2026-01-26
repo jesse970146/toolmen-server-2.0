@@ -1,308 +1,211 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   Card,
   Button,
   Dropdown,
-  Space,
   Menu,
   Tag,
-  Row,
-  Col,
-  Popconfirm,
+  Tooltip,
+  message,
+  Modal,
+  Input,
+  Typography,
+  Space
 } from "antd";
 import {
   FaUbuntu,
-  FaRunning,
   FaTrashAlt,
   FaLinux,
-  FaBan,
   FaRedo,
-  FaAngleDown,
+  FaEllipsisV,
+  FaBan,
+  FaCheckCircle,
+  FaSync,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 
 import { SiJupyter } from "react-icons/si";
-import { AiOutlinePoweroff } from "react-icons/ai";
-import { VscDebugRestart } from "react-icons/vsc";
+import AuthContext from "../context/auth-context";
 
-import { ReactComponent as UbuntuLogo } from "../assets/images/ubuntu-logo.svg";
-import  AuthContext  from "../context/auth-context";
+const { Text, Paragraph } = Typography;
 
-const WorkspaceItem = (props) => {
+const WorkspaceItem = ({ w: workspace, sendRequest }) => {
   const auth = useContext(AuthContext);
-  const workspace = props.w;
-  const onDeleteHandler = async () => {
-    try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/workspace/" + workspace.name,
-        { method: "DELETE", headers: { Authorization: "Bearer " + auth.token } }
-      );
-      const responseData = await response.json();
+  const [loading, setLoading] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteInput, setDeleteInput] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      props.sendRequest();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const confirm = () => {
-    onDeleteHandler();
-  };
-
-  const onRestartHandler = async () => {
-    try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/workspace/" + workspace.name,
-        { method: "PUT", headers: { Authorization: "Bearer " + auth.token } }
-      );
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      props.sendRequest();
-    } catch (err) {
-      console.log(err);
+  // --- 狀態設置 ---
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case "Running":
+        return { color: "success", icon: <FaCheckCircle />, bg: "bg-green-50" };
+      case "Creating":
+      case "Restarting":
+      case "Pending":
+        return { color: "processing", icon: <FaSync className="animate-spin" />, bg: "bg-blue-50" };
+      default:
+        return { color: "default", icon: <FaBan />, bg: "bg-gray-100" };
     }
   };
 
+  const statusConfig = getStatusConfig(workspace.status);
+  const isRunning = workspace.status === "Running";
 
-  const onStopHandler = async () => {
+  // --- API Actions ---
+  const handleAction = async (url, method, isDelete = false) => {
+    const setLoadingState = isDelete ? setDeleteLoading : setLoading;
+    setLoadingState(true);
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL + "/api/workspace/stop/" + workspace.name,
-        { method: "POST" }
-      );
+      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL + url, {
+        method: method,
+        headers: { Authorization: "Bearer " + auth.token },
+      });
       const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      props.sendRequest();
+      if (!response.ok) throw new Error(responseData.message || "Action failed");
+      message.success(isDelete ? "Workspace deleted successfully" : "Success");
+      if (isDelete) setIsDeleteModalOpen(false);
+      sendRequest();
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      message.error(err.message || "Something went wrong");
+    } finally {
+      setLoadingState(false);
     }
   };
 
-  const onStartHandler = async () => {
-    try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL + "/api/workspace/start/" + workspace.name,
-        { method: "POST" }
-      );
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      props.sendRequest();
-    } catch (err) {
-      console.log(err);
-    }
+  const onRestartHandler = () => handleAction("/workspace/" + workspace.name, "PUT");
+  const confirmDelete = () => {
+    if (deleteInput === workspace.name) handleAction("/workspace/" + workspace.name, "DELETE", true);
   };
 
-  let PowerButton = <></>;
-  let ResetButton = <></>;
-  let BigLogo = <></>;
-  let LinkButtons = <></>;
-  let StatusTag = <></>;
-  // http://ml.workspace.toolmen.bime.ntu.edu.tw/admin-test0220/vnc/vnc.html?path=/admin-test0220/websockify
-  const baseURL = "https://server.toolmen.bime.ntu.edu.tw/" + workspace.name  
-    
-  const onJupyterHandler = () => {
-    window.open(baseURL + "/jupyter/");
-  };
-  const onDesktopHandler = () => {
-    window.open(baseURL + "/vnc/vnc.html?path=/" + workspace.name +"/websockify?password=vncpasswd");
-  };
+  // Links
+  const baseURL = "https://server.toolmen.bime.ntu.edu.tw/" + workspace.name;
+  const onJupyterHandler = () => window.open(baseURL + "/jupyter/", "_blank");
+  const onDesktopHandler = () => window.open(baseURL + `/vnc/vnc.html?path=/${workspace.name}/websockify?password=vncpasswd`, "_blank");
 
-  if (workspace.status == "Running") {
-    PowerButton = (
-      <Button
-        danger
-        className="flex justify-center items-center w-20 gap-1"
-        onClick={() => onStopHandler()}
-      >
-        <AiOutlinePoweroff className="mt-0.5" />
-        Stop
-      </Button>
-    );
-    ResetButton = (
-      <Button className="flex justify-center items-center px-4 gap-1 text-gray-700 "
-        onClick={() => onStopHandler()}
-      >
-        <VscDebugRestart className="mt-0.5" />
-        Restart
-      </Button>
-    );
-    BigLogo = (
-      <div className="w-48 h-44 text-gray-700 flex flex-col items-center justify-center pr-2 mt-3">
-        <FaUbuntu className="w-20 h-20" />
-        {/* <p className="font-semibold text-xs mt-1">Ubuntu 20.04 LTS</p> */}
-        <p className="font-semibold text-sm mt-2">{workspace.server}</p>
-      </div>
-    );
-    LinkButtons = (
-      <>
-        <Button
-          type=""
-          className="flex items-center font-semibold text-gray-700 rounded justify-center px-4 gap-2"
-         
-          // href={baseURL + "tree"}
-          // target="_blank"
-          onClick={() => {
-            onJupyterHandler();
-          }}
-        >
-          <SiJupyter />
-          Jupyter
-        </Button>
-        <Button
-          type=""
-          className="flex items-center font-semibold text-gray-700 rounded justify-center px-4 gap-2"
-          // flex justify-center items-center px-4 text-gray-700
-          // href={baseURL + "tools/vnc?password=vncpassword"}
-          // target="_blank"
-          onClick={() => {
-            onDesktopHandler();
-          }}
-        >
-          <FaLinux />
-          Desktop
-        </Button>
-      </>
-    );
-    StatusTag = (
-      <Tag
-        color="processing"
-        className="rounded-full w-20 flex justify-center items-center gap-1"
-        icon={<FaRunning className="" />}
-      >
-        Running
-      </Tag>
-    );
-  }
-  if (workspace.status != "Running") {
-    PowerButton = (
-      <Button
-        type="primary"
-        ghost
-        className="flex justify-center items-center w-20 gap-1"
-        onClick={() => onStartHandler()}
-      >
-        <AiOutlinePoweroff className="mt-0.5" />
-        Start
-      </Button>
-    );
-    ResetButton = (
-      <Button disabled className="flex justify-center items-center px-4 gap-1">
-        <VscDebugRestart className="mt-0.5" />
-        Reset
-      </Button>
-    );
-    BigLogo = (
-      <div className="w-48 h-44 text-gray-700 flex flex-col items-center justify-center pr-2 mt-3">
-        <FaUbuntu className="w-20 h-20" />
-        {/* <p className="font-semibold text-xs mt-1">Ubuntu 20.04 LTS</p> */}
-        <p className="font-semibold text-sm mt-2">{workspace.server}</p>
-      </div>
-    );
-    LinkButtons = (
-      <>
-        
-      </>
-    );
-    StatusTag = (
-      <Tag
-        color="default"
-        className="rounded-full w-20 flex justify-center items-center gap-1"
-        icon={<FaBan className="" />}
-      >
-        Unusable
-      </Tag>
-    );
-  }
-
+  // Menu
   const menu = (
     <Menu>
-      <Menu.Item
-        className="flex justify-center items-center px-4 text-gray-700"
-        icon={<FaRedo className="" />}
-        onClick={onRestartHandler}
-      >
+      <Menu.Item key="restart" icon={<FaRedo />} onClick={onRestartHandler} disabled={workspace.status === "Creating" || loading} className="text-sm">
         Restart
       </Menu.Item>
-      <Popconfirm
-        title="Are you sure to delete this workspace?"
-        onConfirm={confirm}
-        okType="danger"
-        okText="Delete"
-        cancelText="Cancel"
-      >
-        <Menu.Item
-          danger
-          className="flex justify-center items-center px-4"
-          icon={<FaTrashAlt className="" />}
-          // onClick={() => {}}
-        >
-          Delete
-        </Menu.Item>
-      </Popconfirm>
-      
+      <Menu.Divider />
+      <Menu.Item key="delete" danger icon={<FaTrashAlt />} onClick={() => { setDeleteInput(""); setIsDeleteModalOpen(true); }} className="text-sm">
+        Delete
+      </Menu.Item>
     </Menu>
   );
 
   return (
-    <Card
-      className="hover:drop-shadow-[0_0_15px_rgba(0,0,0,0.10)] transition duration-200"
-      bodyStyle={{ padding: 10 }}
-    >
-      <div className="flex divide-x">
-        <div className="mr-1">
-          {BigLogo}
-          <div className="flex items-center justify-center gap-2 pb-2">
-          </div>
+    <>
+      <Card
+        loading={loading}
+        className="flex flex-col h-full hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden border-gray-200"
+        bodyStyle={{ padding: "0", display: "flex", flexDirection: "column", height: "100%" }}
+      >
+        {/* Header */}
+        <div className={`px-5 py-4 flex justify-between items-center border-b ${isRunning ? "bg-green-50/60" : "bg-gray-50"}`}>
+          <Tag color={statusConfig.color} className="m-0 rounded-full px-3 py-1 text-sm font-medium border-0 flex items-center gap-2">
+            {statusConfig.icon} {workspace.status} 
+          </Tag>
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+            <Button type="text" shape="circle" icon={<FaEllipsisV className="text-gray-500 text-lg" />} />
+          </Dropdown>
         </div>
 
-        <div className="pl-4 pr-4 py-2 flex flex-col w-full">
-          <div className=" flex gap-2 justify-between items-center">
-            <div className="font-semibold text-xl flex-1 select-text">
+        {/* Body */}
+        <div className="p-6 flex-1 flex flex-col items-center">
+          <div className={`p-4 rounded-full mb-4 transition-colors duration-300 ${isRunning ? "bg-orange-50 text-orange-500" : "bg-gray-100 text-gray-400"}`}>
+            <FaUbuntu size={52} className={workspace.status === "Creating" ? "animate-pulse" : ""} />
+          </div>
+          
+          <div className="text-center w-full mb-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-1 truncate w-full px-2" title={workspace.name}>
               {workspace.name}
+            </h3>
+            <p className="text-sm text-gray-500 font-mono inline-block bg-gray-100 px-3 py-1 rounded-md">
+              {workspace.server || "Server Node"}
+            </p>
+          </div>
+          
+          <div className="w-full bg-gray-50 p-3 rounded-xl border border-gray-100">
+            <div className="grid grid-cols-[70px_1fr] gap-y-2 gap-x-4 text-sm">
+              <div className="text-gray-500 font-medium text-right">Status</div>
+              <div className={`font-semibold text-left truncate ${statusConfig.color === 'processing' ? 'text-blue-600' : 'text-gray-800'}`}>
+                {workspace.status}
+              </div>
+              <div className="text-gray-500 font-medium text-right">Created</div>
+              <div className="font-semibold text-gray-800 text-left truncate" title={workspace.create_time}>
+                {workspace.create_time}
+              </div>
+              <div className="text-gray-500 font-medium text-right">Image</div>
+              <div className="text-left">
+                <Tooltip title={workspace.image_name}>
+                  <div className="font-semibold text-gray-800 truncate cursor-help">
+                    {workspace.image_name}
+                  </div>
+                </Tooltip>
+              </div>
             </div>
-            {StatusTag}
-            <Dropdown overlay={menu} placement="bottomLeft" trigger={["click"]}>
-              <Button className="flex justify-center items-center px-4 gap-2 text-gray-700">
-                More
-                <FaAngleDown className="" />
-              </Button>
-            </Dropdown>
           </div>
-
-          <div className="flex-1 flex flex-col justify-begin mt-4 text-gray-500">
-            <Row gutter={16}>
-              <Col span={5}>
-                <span className="font-semibold">Creation time</span>
-              </Col>
-              <Col span={19}> {workspace.create_time}</Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={5}>
-                <span className="font-semibold">Image</span>
-              </Col>
-              <Col span={19}> {workspace.image_name}</Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={5}>
-                <span className="font-semibold">Description</span>
-              </Col>
-              <Col span={19}> {workspace.status} </Col>
-            </Row>
-          </div>
-          <Space>{LinkButtons}</Space>
         </div>
-      </div>
-    </Card>
+
+        {/* Footer */}
+        <div className="p-5 bg-white mt-auto">
+          {isRunning ? (
+            <div className="flex gap-4 animate-fade-in">
+              <Button 
+                block 
+                className="flex items-center justify-center gap-2 bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100 hover:border-orange-300 h-11 text-base font-medium shadow-sm hover:shadow"
+                onClick={onJupyterHandler}
+              >
+                <SiJupyter size={18} /> Jupyter
+              </Button>
+              <Button 
+                block 
+                className="flex items-center justify-center gap-2 h-11 text-base font-medium text-gray-600 shadow-sm hover:shadow hover:text-gray-800 hover:border-gray-400"
+                onClick={onDesktopHandler}
+              >
+                <FaLinux size={18} /> Desktop
+              </Button>
+            </div>
+          ) : (
+            <div className="h-11 flex items-center justify-center text-gray-400 italic text-sm select-none">
+               {workspace.status === "Creating" ? "Initializing..." : ""}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Delete Modal */}
+      <Modal
+        title={<div className="flex items-center gap-2 text-red-600 text-lg"><FaExclamationTriangle /><span>Delete Workspace</span></div>}
+        open={isDeleteModalOpen}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        footer={[
+          <Button key="cancel" size="large" onClick={() => setIsDeleteModalOpen(false)}>Cancel</Button>,
+          <Button key="delete" type="primary" danger size="large" loading={deleteLoading} onClick={confirmDelete} disabled={deleteInput !== workspace.name}>Delete</Button>,
+        ]}
+      >
+        <Space direction="vertical" className="w-full py-2">
+          <div className="bg-red-50 border border-red-100 p-4 rounded-md text-red-800 text-base">
+            Warning: This action <strong>cannot</strong> be undone. All data in 
+            {/* 修改這裡：加入 whitespace-nowrap 強制不換行 */}
+            <span className="font-mono mx-1 bg-white px-1.5 py-0.5 rounded border border-red-200 font-bold whitespace-nowrap">
+              {workspace.name}
+            </span> 
+            will be permanently lost.
+          </div>
+          <Paragraph className="mb-0 mt-4 text-gray-600 text-base">
+            {/* 這裡也加上 whitespace-nowrap 以防萬一 */}
+            Please type <Text strong copyable className="text-base whitespace-nowrap">{workspace.name}</Text> to confirm.
+          </Paragraph>
+          <Input size="large" placeholder={workspace.name} value={deleteInput} onChange={(e) => setDeleteInput(e.target.value)} status={deleteInput && deleteInput !== workspace.name ? "error" : ""} onPressEnter={confirmDelete} className="text-base font-mono mt-2"/>
+        </Space>
+      </Modal>
+    </>
   );
 };
 

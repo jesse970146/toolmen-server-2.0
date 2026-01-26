@@ -1,179 +1,142 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
   Button,
-  Space,
-  Select,
   Drawer,
   Form,
-  Row,
-  Col,
   Input,
   notification,
+  message,
 } from "antd";
-import { FiServer } from "react-icons/fi";
-import { CgServer } from "react-icons/cg";
-import { Checkbox } from 'antd';
-import  AuthContext  from "../context/auth-context";
+import { 
+  FileImageOutlined, 
+  CloudServerOutlined, 
+  InfoCircleOutlined 
+} from "@ant-design/icons";
+import AuthContext from "../context/auth-context";
 
-const { Option } = Select;
-
-const CreateNewImage = (props) => {
+const CreateNewImage = ({ visible, onClose, sendRequest }) => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
-  const [creating, setCreating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
+  // 錯誤通知
   const onErrorHandler = (err) => {
-    notification["error"]({
-      message: "Image Creation Failed!",
-      duration: 7,
-      description:
-        "An error has occurred. Please try again later. Error message: " +  err.message,
-      style: {
-        width: 500,
-      },
+    notification.error({
+      message: "Creation Failed",
+      description: err.message || "An error occurred while creating the image.",
+      placement: "topRight",
     });
   };
 
-  const ImageCreate = async () => {
-    setCreating(true);
+  // 提交表單
+  const onFinish = async (values) => {
+    setSubmitting(true);
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/images" ,
-          // (form.getFieldValue("name") || "no-input"),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + auth.token,
-          },
-          body: JSON.stringify({
-            name: form.getFieldValue("name"),
-            Description: form.getFieldValue("Description"),
-            value: form.getFieldValue("value")
-          }),
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/images`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth.token,
+        },
+        body: JSON.stringify({
+          name: values.name,
+          value: values.value,
+          Description: values.Description, // 注意：後端似乎需要大寫開頭的 Description
+        }),
+      });
+
       const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error(responseData.message);
+        throw new Error(responseData.message || "Something went wrong");
       }
-      props.sendRequest();
-      props.onClose();
-      setCreating(false);
+
+      message.success("Image created successfully!");
+      sendRequest(); // 重新整理列表
+      handleClose(); // 關閉視窗並重置
     } catch (err) {
       onErrorHandler(err);
-      setCreating(false);
-      console.log(err);
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
-    form.resetFields();
   };
 
-  // 這裡要串接後端新增workspace
-  const onFinish = () => {
-    
-    ImageCreate();
+  // 統一處理關閉 (重置表單)
+  const handleClose = () => {
+    form.resetFields();
+    onClose();
   };
 
   return (
     <Drawer
-      className="select-none"
       title="Create New Image"
       placement="right"
-      width={560}
-      onClose={() => {
-        form.resetFields();
-        props.onClose();  // 再執行原本傳進來的函式
-      }}
-      open={props.visible}
-      // extra={
-      //   <Space>
-      //     <Button onClick={props.onClose} disabled={creating} className="">
-      //       Cancel
-      //     </Button>
-      //     <Button
-      //       // onClick={() => {
-      //       //   onFinish();
-      //       // }}
-      //       loading={creating}
-      //       type="primary"
-      //       className="bg-blue-500"
-      //       htmlType="submit"
-      //     >
-      //       {creating && "Creating"}
-      //       {!creating && "Create"}
-      //     </Button>
-      //   </Space>
-      // }
+      width={500}
+      onClose={handleClose}
+      open={visible}
+      maskClosable={!submitting}
+      // 將按鈕移至底部 Footer
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button onClick={handleClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => form.submit()}
+            type="primary"
+            loading={submitting}
+            className="bg-blue-500"
+          >
+            Create Image
+          </Button>
+        </div>
+      }
     >
       <Form
         layout="vertical"
-        requiredMark="optional"
         form={form}
         onFinish={onFinish}
+        requiredMark="optional"
       >
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="name"
-              label="Image"
-              rules={[{ required: true, message: "Please enter name" }]}
-            >
-              <Input
-                placeholder="Please enter name"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="value"
-              label="Value"
-              rules={[{ required: true, message: "Please enter the name of image in docker hub" }]}
-            >
-              <Input
-                placeholder="Please enter the name of image in docker hub"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="Description"
-              label="Description"
-              rules={[{ required: true, message: "Please enter the description of image" }]}
-            >
-              <Input
-                placeholder="Please enter the description of image"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-          <Space>
-            <Button
-              // onClick={() => {
-              //   onFinish();
-              // }}
-              loading={creating}
-              type="primary"
-              className="bg-blue-500"
-              htmlType="submit"
-            >
-              {creating && "Creating"}
-              {!creating && "Create"}
-            </Button>
-            <Button 
-              onClick={() => {
-                form.resetFields();
-                props.onClose();  // 再執行原本傳進來的函式
-              }}
-              disabled={creating} 
-              className=""
-            >
-              Cancel
-            </Button>
-          </Space>
+        <h3 className="text-gray-500 text-xs font-bold uppercase mb-4 tracking-wider">Image Details</h3>
+
+        <Form.Item
+          name="name"
+          label="Display Name"
+          rules={[{ required: true, message: "Please enter image name" }]}
+        >
+          <Input 
+            prefix={<FileImageOutlined className="text-gray-400" />} 
+            placeholder="e.g. Ubuntu 24.04 - ML" 
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="value"
+          label="Docker Image Tag"
+          rules={[{ required: true, message: "Please enter the docker hub image name" }]}
+          help="The exact image name/tag in Docker Hub"
+        >
+          <Input 
+            prefix={<CloudServerOutlined className="text-gray-400" />} 
+            placeholder="e.g. toolmen/server:v1.0" 
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="Description"
+          label="Description"
+          rules={[{ required: true, message: "Please enter description" }]}
+        >
+          <Input.TextArea 
+            placeholder="Brief description of the environment and tools included..." 
+            rows={4}
+            className="resize-none"
+          />
+        </Form.Item>
       </Form>
     </Drawer>
   );

@@ -29,9 +29,7 @@ const EditUser = ({ user, visible, onClose, sendRequest }) => {
         isAdmin: user.is_admin,
         actived: user.actived,
       });
-    } else {
-      form.resetFields();
-    }
+    } 
   }, [user, visible, form]);
 
   const onErrorHandler = (err) => {
@@ -88,6 +86,7 @@ const EditUser = ({ user, visible, onClose, sendRequest }) => {
       onClose={onClose}
       open={visible}
       maskClosable={!submitting}
+      destroyOnClose={true}
       footer={
         <div className="flex justify-end gap-2">
           <Button onClick={onClose} disabled={submitting}>

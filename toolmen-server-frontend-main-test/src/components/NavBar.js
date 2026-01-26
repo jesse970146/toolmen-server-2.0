@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { Dropdown, Avatar} from "antd"; // 移除沒用到的 Button, Menu
+import { Dropdown, Avatar } from "antd";
 import {
   LogoutOutlined,
   SettingOutlined,
@@ -10,7 +10,7 @@ import {
 import { useNavigate, Link, useLocation } from "react-router-dom"; 
 import AuthContext from "../context/auth-context";
 import { createAvatar } from '@dicebear/core';
-import { loreleiNeutral } from '@dicebear/collection'; // 引入你喜歡的風格
+import { loreleiNeutral } from '@dicebear/collection';
 
 const NavBar = () => {
   const auth = useContext(AuthContext);
@@ -19,28 +19,25 @@ const NavBar = () => {
 
   const avatarSvg = useMemo(() => {
     const avatar = createAvatar(loreleiNeutral, {
-      seed: auth.userInfo?.username || 'default', // 用名字當種子
+      seed: auth.userInfo?.username || 'default',
       size: 128,
-      backgroundColor: ["b6e3f4","c0aede","d1d4f9"], // 可選：隨機背景色池
+      backgroundColor: ["b6e3f4","c0aede","d1d4f9"],
       backgroundType: ["gradientLinear","solid"]
     });
-    // 轉成 Data URI 格式 (data:image/svg+xml;utf8,...)
-    return avatar.toDataUri();
+    return avatar.toString(); // 注意：新版 DiceBear 使用 toString()
   }, [auth.userInfo?.username]);
 
   const handleLogout = () => {
-    // 你的登出邏輯
     auth.logout();
     navigate("/login");
   };
 
-  // --- 修改重點 1: 下拉選單加入 Settings ---
   const userMenuArgs = [
     {
-      key: 'settings', // 加入 Settings
+      key: 'settings',
       label: 'Settings',
       icon: <SettingOutlined />,
-      onClick: () => navigate("/settings"), // 點擊跳轉到 /settings
+      onClick: () => navigate("/settings"),
     },
     {
       type: 'divider',
@@ -54,10 +51,8 @@ const NavBar = () => {
     },
   ];
 
-  // --- 修改重點 2: 上方導航移除 Settings ---
   const navItems = [
-    { label: "Workspace", key: "/", icon: <AppstoreOutlined /> },
-    // { label: "Settings", key: "/settings", icon: <SettingOutlined /> }, <--- 這裡刪除
+    // { label: "Workspace", key: "/", icon: <AppstoreOutlined /> },
     { label: "Help", key: "/help", icon: <QuestionCircleOutlined /> },
   ];
 
@@ -66,16 +61,20 @@ const NavBar = () => {
   }
 
   return (
-    <section className="h-16 z-50 sticky top-0 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200 px-6 xl:px-44 shadow-sm">
+    // 1. 移除 border-b border-gray-200，加入 relative 以便定位漸層線
+    <section className="h-16 z-50 sticky top-0 flex items-center justify-between bg-white/90 backdrop-blur-md px-6 xl:px-44 shadow-sm relative">
       
+      {/* 2. 新增與 Footer 一樣的漸層線條，但位置設為 bottom-0 (底部) */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+
       {/* 左側: Logo 與 導航 */}
       <div className="flex items-center gap-8">
-        <div to="/" className="flex items-center gap-2 no-underline text-gray-800">
+        <Link to="/" className="flex items-center gap-2 no-underline text-gray-800">
            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
              T
            </div>
            <span className="font-bold text-xl hidden md:block">Toolmen Lab</span>
-        </div>
+        </Link>
 
         {/* 導航按鈕區 */}
         {auth.isLoggedIn && (
@@ -101,13 +100,6 @@ const NavBar = () => {
       <div className="flex items-center gap-4">
         {auth.isLoggedIn && (
           <>
-             {/* 鈴鐺範例 */}
-            {/* <div className="cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-colors text-gray-600">
-              <Badge count={0} size="small" dot> 
-                <BellOutlined style={{ fontSize: 20 }} />
-              </Badge>
-            </div> */}
-
             <span className="hidden lg:block text-xs font-semibold bg-gray-100 text-gray-500 px-3 py-1 rounded-full border border-gray-200">
               {auth.userInfo?.lab_name || "No Lab"}
             </span>
@@ -117,11 +109,10 @@ const NavBar = () => {
             <Dropdown menu={{ items: userMenuArgs }} trigger={['click']} placement="bottomRight">
               <div className="flex items-center gap-3 cursor-pointer p-1 pr-2 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200">
                 <Avatar 
-                  size={45} // 可以調大一點看清楚細節
-                  src={avatarSvg}
-                  style={{ backgroundColor: 'transparent' }} // 圖片通常自帶背景，這裡設透明
+                  size={40} // 稍微調小一點點比較優雅
+                  src={`data:image/svg+xml;utf8,${encodeURIComponent(avatarSvg)}`} // 修正 src 格式
+                  style={{ backgroundColor: 'transparent' }} 
                 >
-                  {/* 這裡是文字內容 */}
                   {auth.userInfo?.username?.[0]?.toUpperCase()}
                 </Avatar>
                 

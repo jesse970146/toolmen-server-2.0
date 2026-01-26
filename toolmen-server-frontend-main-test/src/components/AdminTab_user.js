@@ -1,107 +1,99 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Button, Table, Tag, Dropdown, Menu, message, Modal, notification } from "antd";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { Button, Table, Dropdown, Menu, message, Modal, Space } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import { FaRunning, FaBan } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
 import AuthContext from "../context/auth-context";
 import CreateNewUser from "./CreateNewUser";
 import EditUser from "./EditUser";
-import { IoReload } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa6";
-const AdminTab_user = ({isActive}) => {
+
+const AdminTab_user = ({ isActive }) => {
   const auth = useContext(AuthContext);
-  const [loadedUsers, setLoadedUser] = useState([]);
-  const [CreateNewUserVisible, setCreateNewUserVisible] = useState(false);
+
+  // 狀態管理
+  const [users, setUsers] = useState([]);
+  const [labList, setLabList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Drawer 狀態
+  const [isCreateDrawerVisible, setIsCreateDrawerVisible] = useState(false);
+  const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [EditUserVisible, setEditUserVisible] = useState(false);
 
-  const showCreateNewUserDrawer = () => {
-    sendLabRequest();
-    setCreateNewUserVisible(true);
-  }
-
-  const onCloseCreateNewUser = () => setCreateNewUserVisible(false);
-
-  // const showEditUserDrawer = () => setEditUserVisible(true);
-  const onCloseEditUser = () => setEditUserVisible(false);
-  const showEditUserDrawer = (user) => {
-    setEditingUser(user);       // 記住這位使用者
-    setEditUserVisible(true); // 打開 Drawer
-  };
-
-  const [LabList, setLabList] = useState([]);
-  const sendLabRequest = async () => {
+  // 取得 Labs 列表 (為了 CreateNewUser 選單用)
+  const fetchLabs = useCallback(async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/labs", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/labs`, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message);
-      }
-      // console.log(responseData)
-      setLabList(responseData.labs);
-      console.log(responseData.labs);
+      if (!response.ok) throw new Error(responseData.message);
+      setLabList(responseData.labs || []);
     } catch (err) {
-      console.log(err);
+      console.error("Failed to fetch labs:", err);
+      message.error("Failed to load lab list");
     }
+  }, [auth.token]);
+
+  // 開啟 Create User Drawer (先抓 Lab 資料再開)
+  const showCreateUserDrawer = async () => {
+    await fetchLabs();
+    setIsCreateDrawerVisible(true);
   };
 
+  const closeCreateUserDrawer = () => setIsCreateDrawerVisible(false);
 
+  // 開啟 Edit User Drawer
+  const showEditUserDrawer = (user) => {
+    setEditingUser(user);
+    setIsEditDrawerVisible(true);
+  };
 
+  const closeEditUserDrawer = () => {
+    setIsEditDrawerVisible(false);
+    setEditingUser(null);
+  };
 
-
-  const sendRequest = async () => {
+  // 取得 Users 列表
+  // showLoading: true (轉圈圈), false (靜默更新)
+  const fetchUsers = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/users`, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
+
       if (!response.ok) throw new Error(responseData.message);
-      setLoadedUser(responseData.all_users);
-      console.log(responseData.all_users)
+      setUsers(responseData.all_users || []);
     } catch (err) {
       console.error(err);
-      message.error("Failed to load users");
+      if (showLoading) message.error("Failed to load users");
+    } finally {
+      if (showLoading) setLoading(false);
     }
-  };
+  }, [auth.token]);
+
+  // 輪詢機制
   useEffect(() => {
-      if (!isActive) return;
-  
-      sendRequest(); // 初次呼叫
-      const interval = setInterval(sendRequest, 5000); // 每 5 秒輪詢
-  
-      return () => clearInterval(interval); // 當 isActive 變為 false 時停止
-    }, [isActive]);
+    if (!isActive) return;
 
-  useEffect(() => {
-    sendRequest();
-  }, []);
+    fetchUsers(true); // 初次載入
+    const interval = setInterval(() => fetchUsers(false), 5000); // 每 5 秒靜默更新
 
-  const onErrorHandler = (err) => {
-        notification["error"]({
-          message: "Workspace Creation Failed!",
-          duration: 7,
-          description:
-          (
-            <>
-              An error has occurred. Please try again later.
-            </>
-          ),
-            // "An error has occurred. Please try again later. <br /> Error message: " +
-            // err.message,
-          style: {
-            width: 500,
-          },
-        });
-      };
+    return () => clearInterval(interval);
+  }, [isActive, fetchUsers]);
 
-  const UserDelete = async (user) => {
+  // 刪除使用者
+  const handleDeleteUser = (user) => {
     Modal.confirm({
       title: "Delete User",
-      content: `Are you sure you want to delete user "${user.username}"?`,
+      content: (
+        <span>
+          Are you sure you want to delete user <b>{user.username}</b>?
+        </span>
+      ),
       okText: "Delete",
-      okButtonProps: { danger: true },
+      okType: "danger",
       cancelText: "Cancel",
       onOk: async () => {
         try {
@@ -115,10 +107,14 @@ const AdminTab_user = ({isActive}) => {
               },
             }
           );
-          const responseData = await response.json();
-          if (!response.ok) throw new Error(responseData.message);
+          
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message);
+          }
+          
           message.success("User deleted successfully");
-          sendRequest();
+          fetchUsers(true); // 刷新列表
         } catch (err) {
           console.error(err);
           message.error("Failed to delete user: " + err.message);
@@ -127,163 +123,167 @@ const AdminTab_user = ({isActive}) => {
     });
   };
 
-  const UserForgetpassword = async (user) => {
+  // 重設密碼
+  const handleResetPassword = (user) => {
     Modal.confirm({
-      title: "Reset User's Password",
-      content: `Are you sure you want to reset the password?`,
+      title: "Reset User Password",
+      content: (
+        <span>
+            Are you sure you want to reset the password for <b>{user.username}</b>?
+        </span>
+      ),
       okText: "Reset",
-      okButtonProps: { danger: true },
+      okType: "danger",
       cancelText: "Cancel",
       onOk: async () => {
         try {
-            const response = await fetch(
-              process.env.REACT_APP_BACKEND_BASE_URL+ "/user/" +
-                (user.id || "no-input"),
-              {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": "Bearer " + auth.token,
-                },
-                body: JSON.stringify({
-                  event: "forgetPassword"
-                }),
-              }
-            );
-            const responseData = await response.json();
-            if (!response.ok) {
-              throw new Error(responseData.message);
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_BASE_URL}/user/${user.id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + auth.token,
+              },
+              body: JSON.stringify({ event: "forgetPassword" }),
             }
-          } catch (err) {
-            onErrorHandler(err);
-            console.log(err);
+          );
+          
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message);
           }
+          message.success(`Password for ${user.username} has been reset.`);
+        } catch (err) {
+          console.error(err);
+          message.error("Failed to reset password: " + err.message);
+        }
       },
     });
   };
 
-  
   const columns = [
-  {
-    title: "ID",
-    dataIndex: "id",
-    key: "id",
-    sorter: (a, b) => a.id - b.id,
-  },
-  {
-    title: "User",
-    dataIndex: "username",
-    key: "username",
-    sorter: (a, b) => a.username.localeCompare(b.username),
-    multiple: 3,
-  },
-  {
-    title: "Admin ?",
-    dataIndex: "is_admin",
-    key: "is_admin",
-    sorter: (a, b) => b.is_admin - a.is_admin, // ✅ 讓 true 在前面
-    render: (value) => (value ? "✅" : "❌"),
-  },
-  {
-    title: "LAB",
-    dataIndex: "lab_name",
-    key: "lab_name",
-    sorter: (a, b) => a.lab_name.localeCompare(b.lab_name),
-  },
-  {
-    title: "Actived",
-    dataIndex: "actived",
-    key: "actived",
-    // sorter: (a, b) => a.lab_name.localeCompare(b.lab_name),
-    render: (value) => (value ? "✅" : "❌"),
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    render: (value) => (value ? value : "unknown"),
-  },
-  {
-    title: "Quota",
-    dataIndex: "quota",
-    key: "quota",
-    // sorter: (a, b) => a.quota - b.quota,
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    width: "10%",
-    render: (text, user) => {
-      const menu = (
-        <Menu>
-          <Menu.Item key="edit" onClick={() => showEditUserDrawer(user)}>
-            Edit User
-          </Menu.Item>
-          <Menu.Item key="forget" onClick={() => UserForgetpassword(user)}>
-            Reset Password
-          </Menu.Item>
-          <Menu.Item key="delete" danger onClick={() => UserDelete(user)}>
-            Delete
-          </Menu.Item>
-        </Menu>
-      );
-
-      return (
-        <Dropdown overlay={menu}>
-          <Button>
-            Actions <DownOutlined />
-          </Button>
-        </Dropdown>
-      );
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+      sorter: (a, b) => a.id - b.id,
     },
-  },
-];
+    {
+      title: "User",
+      dataIndex: "username",
+      key: "username",
+      width: 150,
+      sorter: (a, b) => a.username.localeCompare(b.username),
+    },
+    {
+      title: "Admin",
+      dataIndex: "is_admin",
+      key: "is_admin",
+      width: 100,
+      align: 'center',
+      sorter: (a, b) => b.is_admin - a.is_admin,
+      render: (value) => (value ? "✅" : "❌"),
+    },
+    {
+      title: "LAB",
+      dataIndex: "lab_name",
+      key: "lab_name",
+      width: 150,
+      sorter: (a, b) => (a.lab_name || "").localeCompare(b.lab_name || ""),
+    },
+    {
+      title: "Active",
+      dataIndex: "actived",
+      key: "actived",
+      width: 100,
+      align: 'center',
+      render: (value) => (value ? "✅" : "❌"),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      width: 200,
+      render: (value) => value || "unknown",
+    },
+    {
+      title: "Quota",
+      dataIndex: "quota",
+      key: "quota",
+      width: 100,
+      sorter: (a, b) => a.quota - b.quota,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 120,
+      fixed: 'right',
+      render: (_, user) => {
+        // Dropdown Menu 內容
+        const menu = (
+          <Menu>
+            <Menu.Item key="edit" onClick={() => showEditUserDrawer(user)}>
+              Edit User
+            </Menu.Item>
+            <Menu.Item key="forget" onClick={() => handleResetPassword(user)}>
+              Reset Password
+            </Menu.Item>
+            <Menu.Item key="delete" danger onClick={() => handleDeleteUser(user)}>
+              Delete
+            </Menu.Item>
+          </Menu>
+        );
 
+        return (
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button>
+              Actions <DownOutlined />
+            </Button>
+          </Dropdown>
+        );
+      },
+    },
+  ];
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl"></div>
+      <div className="flex w-full justify-between items-center mb-4">
+        <div className="text-gray-700 font-semibold text-xl">User Management</div>
         <div className="flex gap-2">
-          <div className="flex-1 gap-2">
-          <Button type="primary" 
-            onClick={showCreateNewUserDrawer} 
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
+          <Button
+            type="primary"
+            onClick={showCreateUserDrawer}
+            className="flex items-center gap-2 bg-blue-500"
+            icon={<FaPlus />}
           >
-            <FaPlus />
             Create New User
           </Button>
-          {/* <Button
-            type="primary"
-            onClick={sendRequest}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            <IoReload />
-            Reload Table
-          </Button> */}
-          </div>
         </div>
       </div>
 
       <Table
         rowKey="id"
-        dataSource={loadedUsers}
+        dataSource={users}
         columns={columns}
+        loading={loading && users.length === 0} // 只有初次沒資料時顯示轉圈
         pagination={{ pageSize: 10 }}
+        scroll={{ x: 1000 }} // 如果欄位太多，允許橫向捲動
       />
 
       <CreateNewUser
-        onClose={onCloseCreateNewUser}
-        visible={CreateNewUserVisible}
-        sendRequest={sendRequest}
-        LabList={LabList}
+        visible={isCreateDrawerVisible}
+        onClose={closeCreateUserDrawer}
+        sendRequest={() => fetchUsers(true)}
+        LabList={labList}
       />
+
       <EditUser
-        onClose={onCloseEditUser}
-        visible={EditUserVisible}
+        visible={isEditDrawerVisible}
+        onClose={closeEditUserDrawer}
         user={editingUser}
-        sendRequest={sendRequest}
-        
+        sendRequest={() => fetchUsers(true)}
       />
     </>
   );

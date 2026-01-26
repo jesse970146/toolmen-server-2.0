@@ -1,82 +1,56 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Button, Table, Tag, message, Modal} from "antd";
-
-import {
-  FaRunning,
-  FaBan,
-} from "react-icons/fa";
-
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { Button, Table, message, Modal, Space } from "antd";
 import AuthContext from "../context/auth-context";
-import { IoReload } from "react-icons/io5";
-const onLaunchHandler = (url) => {
-  window.open(url);
-};
 
-const RunningTag = (
-  <Tag
-    color="processing"
-    className="rounded-full w-20 flex justify-center items-center gap-1"
-    icon={<FaRunning className="" />}
-  >
-    running
-  </Tag>
-);
-
-const StoppedTag = (
-  <Tag
-    color="default"
-    className="rounded-full w-20 flex justify-center items-center gap-1"
-    icon={<FaBan className="" />}
-  >
-    stopped
-  </Tag>
-);
-
-// const columns = [
-  
-// ];
-
-const AdminTab = ({props, isActive}) => {
+const AdminTab_workspace = ({ isActive }) => {
   const auth = useContext(AuthContext);
-  const [loadedWorkspaces, setLoadedWorkspaces] = useState([]);
-  
-  const sendRequest = async () => {
+
+  // 狀態管理
+  const [workspaces, setWorkspaces] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // 取得 Workspace 列表
+  const fetchWorkspaces = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/workspaces", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/workspaces`, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message);
+        throw new Error(responseData.message || "Failed to fetch workspaces");
       }
-      setLoadedWorkspaces(responseData.all_workspaces);
-      console.log(responseData.all_workspaces);
+      setWorkspaces(responseData.all_workspaces || []);
     } catch (err) {
-      console.log(err);
-      message.error("Failed to load workspaces");
+      console.error(err);
+      if (showLoading) message.error("Failed to load workspaces");
+    } finally {
+      if (showLoading) setLoading(false);
     }
-  };
+  }, [auth.token]);
+
+  // 輪詢機制
   useEffect(() => {
     if (!isActive) return;
 
-    sendRequest(); // 初次呼叫
-    const interval = setInterval(sendRequest, 5000); // 每 5 秒輪詢
+    fetchWorkspaces(true); // 初次載入
+    const interval = setInterval(() => fetchWorkspaces(false), 5000); // 每 5 秒靜默更新
 
-    return () => clearInterval(interval); // 當 isActive 變為 false 時停止
-  }, [isActive]);
+    return () => clearInterval(interval);
+  }, [isActive, fetchWorkspaces]);
 
-
-  useEffect(() => {
-    sendRequest();
-  }, []);
-
-  const WorkspaceDelete = async (workspace) => {
+  // 刪除 Workspace
+  const handleDeleteWorkspace = (workspace) => {
     Modal.confirm({
       title: "Delete Workspace",
-      content: `Are you sure you want to delete workspace "${workspace.name}"?`,
+      content: (
+        <span>
+            Are you sure you want to delete workspace <b>{workspace.name}</b>?
+        </span>
+      ),
       okText: "Delete",
-      okButtonProps: { danger: true },
+      okType: "danger",
       cancelText: "Cancel",
       onOk: async () => {
         try {
@@ -91,9 +65,13 @@ const AdminTab = ({props, isActive}) => {
             }
           );
           const responseData = await response.json();
-          if (!response.ok) throw new Error(responseData.message);
-          message.success("Workspacedeleted successfully");
-          sendRequest();
+          
+          if (!response.ok) {
+            throw new Error(responseData.message);
+          }
+          
+          message.success("Workspace deleted successfully");
+          fetchWorkspaces(true); // 刪除成功後刷新
         } catch (err) {
           console.error(err);
           message.error("Failed to delete Workspace: " + err.message);
@@ -103,100 +81,81 @@ const AdminTab = ({props, isActive}) => {
   };
 
   const columns = [
-      {
-        title: "User",
-        dataIndex: "user_name",
-        key: "user_name",
-        sorter: (a, b) => a.user_name.localeCompare(b.user_name),
-        // multiple: 3,
-      },
-      {
-        title: "Workspace name",
-        dataIndex: "name",
-        key: "name",
-      },
-      {
-        title: "Image",
-        dataIndex: "image_name",
-        key: "image_name",
-      },
-      {
-        title: "Server",
-        dataIndex: "server",
-        key: "server",
-      },
-      {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-        sorter: (a, b) => a.status.localeCompare(b.status),
-      },
-      // {
-      //   title: "Status",
-      //   key: "status",
-      //   dataIndex: "status",
-      //   render: (status) => {
-      //     if (status == "running") {
-      //       return RunningTag;
-      //     } else if (status == "stopped") {
-      //       return StoppedTag;
-      //     } else {
-      //       return status;
-      //     }
-      //   },
-      //   filters: [
-      //     { text: "Running", value: "running" },
-      //     { text: "Stopped", value: "stopped" },
-      //   ],
-      // },
-      {
-        title: "Create Time",
-        dataIndex: "create_time",
-        key: "create_time",
-        sorter: (a, b) => new Date(a.create_time) - new Date(b.create_time),
-      },
-      {
-        title: "Actions",
-        key: "actions",
-        width: "10%",
-        render: (text, workspace) => {
-          // const baseURL =
-          //   "http://ml.localhost/" +
-          //   workspace.name +
-          //   "/login?token=" +
-          //   workspace.token +
-          //   "&next=/" +
-          //   workspace.name +
-          //   "/";
-          return (
-            <Button
-              key="delete"
-                danger
-                onClick={() => WorkspaceDelete(workspace)}
-              >
-                Delete
-            </Button>
-          );
-        },
-      },
+    {
+      title: "User",
+      dataIndex: "user_name",
+      key: "user_name",
+      width: 150, // 設定寬度，確保橫拉時有足夠空間
+      sorter: (a, b) => a.user_name.localeCompare(b.user_name),
+    },
+    {
+      title: "Workspace Name",
+      dataIndex: "name",
+      key: "name",
+      width: 200, 
+    },
+    {
+      title: "Image",
+      dataIndex: "image_name",
+      key: "image_name",
+      width: 200,
+    },
+    {
+      title: "Server",
+      dataIndex: "server",
+      key: "server",
+      width: 150,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      sorter: (a, b) => a.status.localeCompare(b.status),
+    },
+    {
+      title: "Create Time",
+      dataIndex: "create_time",
+      key: "create_time",
+      width: 200,
+      sorter: (a, b) => new Date(a.create_time) - new Date(b.create_time),
+      render: (text) => text ? new Date(text).toLocaleString() : "-",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 100, // 固定寬度
+      fixed: 'right', // (選用) 如果你希望 Actions 欄位固定在最右邊不被捲動，可以加上這行
+      render: (_, workspace) => (
+        <Space>
+          <Button
+            danger
+            size="small"
+            onClick={() => handleDeleteWorkspace(workspace)}
+          >
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
   ];
-
 
   return (
     <>
       <div className="flex w-full justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl"></div>
-        {/* <Button
-          type="primary"
-          onClick={sendRequest}
-          className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          <IoReload />
-          Reload Table
-        </Button> */}
+        <div className="text-gray-700 font-semibold text-xl">Workspace Management</div>
       </div>
-      <Table dataSource={loadedWorkspaces} columns={columns} />;
+      
+      <Table 
+        dataSource={workspaces} 
+        columns={columns} 
+        rowKey={(record) => record.name || record.id} 
+        loading={loading && workspaces.length === 0}
+        pagination={{ pageSize: 10 }}
+        scroll={{ x: 1000 }} // ✅ 這裡加上了橫向捲動設定
+      />
     </>
   );
 };
-export default AdminTab;
+
+export default AdminTab_workspace;

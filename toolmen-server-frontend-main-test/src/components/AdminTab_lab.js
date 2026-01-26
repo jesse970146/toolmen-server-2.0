@@ -1,106 +1,86 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Button, Table, Tag, message, Modal} from "antd";
-
-// import {
-//   FaRunning,
-//   FaBan,
-// } from "react-icons/fa";
-import { IoReload } from "react-icons/io5";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { Button, Table, message, Modal, Space } from "antd";
 import { FaPlus } from "react-icons/fa6";
+import { IoReload } from "react-icons/io5"; // 保留 Reload Icon 以備不時之需
 import AuthContext from "../context/auth-context";
 import CreateNewLab from "./CreateNewLab";
-// import CreateNewLab from "./CreateNewLab";
 
-// const onLaunchHandler = (url) => {
-//   window.open(url);
-// };
-
-// const RunningTag = (
-//   <Tag
-//     color="processing"
-//     className="rounded-full w-20 flex justify-center items-center gap-1"
-//     icon={<FaRunning className="" />}
-//   >
-//     running
-//   </Tag>
-// );
-
-// const StoppedTag = (
-//   <Tag
-//     color="default"
-//     className="rounded-full w-20 flex justify-center items-center gap-1"
-//     icon={<FaBan className="" />}
-//   >
-//     stopped
-//   </Tag>
-// );
-
-
-const AdminTab_lab = ({props, isActive}) => {
-
+const AdminTab_lab = ({ isActive }) => {
   const auth = useContext(AuthContext);
-  const [loadedLab, setLoadedLab] = useState([]);
-  const [Visible, setVisible] = useState(false);
-  const showDrawer = () => setVisible(true);
-  const onClose = () => setVisible(false);
+  
+  // 狀態管理
+  const [labs, setLabs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
-  const sendRequest = async () => {
+  // 開啟/關閉 Drawer
+  const showDrawer = () => setIsDrawerVisible(true);
+  const onClose = () => setIsDrawerVisible(false);
+
+  // 取得 Labs 資料
+  const fetchLabs = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_BASE_URL+"/labs", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/labs`, {
         headers: { Authorization: "Bearer " + auth.token },
       });
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message);
+        throw new Error(responseData.message || "Failed to fetch labs");
       }
-      setLoadedLab(responseData.labs);
-      console.log(responseData.labs);
+      setLabs(responseData.labs || []);
     } catch (err) {
-      console.log(err);
-      message.error("Failed to load labs");
+      console.error(err);
+      // 只有在手動刷新時才跳錯誤，避免輪詢時一直跳錯誤訊息騷擾使用者
+      if (showLoading) message.error("Failed to load labs");
+    } finally {
+      if (showLoading) setLoading(false);
     }
-  };
+  }, [auth.token]);
+
+  // 輪詢機制 (Polling)
   useEffect(() => {
     if (!isActive) return;
 
-    sendRequest(); // 初次呼叫
-    const interval = setInterval(sendRequest, 5000); // 每 5 秒輪詢
+    fetchLabs(true); // 初次載入顯示 loading
+    const interval = setInterval(() => fetchLabs(false), 5000); // 之後背景輪詢不顯示 loading
 
-    return () => clearInterval(interval); // 當 isActive 變為 false 時停止
-  }, [isActive]);
+    return () => clearInterval(interval);
+  }, [isActive, fetchLabs]);
 
-  useEffect(() => {
-    sendRequest();
-  }, []);
-
-  const LabDelete = async (lab) => {
+  // 刪除 Lab
+  const handleDeleteLab = (lab) => {
     Modal.confirm({
       title: "Delete Lab",
-      content: `Are you sure you want to delete Lab "${lab.name}"?`,
+      content: (
+        <span>
+          Are you sure you want to delete Lab <b>{lab.name}</b>?
+        </span>
+      ),
       okText: "Delete",
-      okButtonProps: { danger: true },
+      okType: "danger",
       cancelText: "Cancel",
       onOk: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_BASE_URL}/lab/`+ lab.name,
+            `${process.env.REACT_APP_BACKEND_BASE_URL}/lab/${lab.name}`,
             {
               method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + auth.token,
               },
-              // body: JSON.stringify({
-              //   name: image.name
-              //   // disabled: form.getFieldValue("disabled"),
-              // }),
             }
           );
-          const responseData = await response.json();
-          if (!response.ok) throw new Error(responseData.message);
+          
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message);
+          }
+          
           message.success("Lab deleted successfully");
-          sendRequest();
+          fetchLabs(true); // 刪除後刷新
         } catch (err) {
           console.error(err);
           message.error("Failed to delete Lab: " + err.message);
@@ -109,95 +89,74 @@ const AdminTab_lab = ({props, isActive}) => {
     });
   };
 
+  // 表格欄位設定
   const columns = [
-      {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-        width: 300,
-        sorter: (a, b) => a.name.localeCompare(b.name),
-        // multiple: 3,
-      },
-      // {
-      //   title: "Value",
-      //   dataIndex: "value",
-      //   key: "value",
-      //   width: 1000,
-      //     render: (text) => (
-      //       <div style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-      //         {text}
-      //       </div>
-      //     ),
-      // },
-      // {
-      //   title: "Description",
-      //   dataIndex: "Description",
-      //   key: "Description",
-      //   width: 1000,
-      //     render: (text) => (
-      //       <div style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-      //         {text}
-      //       </div>
-      //     ),
-      // },
-      {
-        title: "Actions",
-        key: "actions",
-        width: "10%",
-        render: (text, lab) => {
-          // const baseURL =
-          //   "http://ml.localhost/" +
-          //   workspace.name +
-          //   "/login?token=" +
-          //   workspace.token +
-          //   "&next=/" +
-          //   workspace.name +
-          //   "/";
-          return (
-            <Button
-              key="delete"
-                danger
-                onClick={() => LabDelete(lab)}
-              >
-                Delete
-            </Button>
-          );
-        },
-      },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      width: 300,
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: "15%",
+      render: (_, record) => (
+        <Space>
+          <Button
+            danger
+            size="small"
+            onClick={() => handleDeleteLab(record)}
+          >
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
   ];
-
 
   return (
     <>
+      {/* 頂部操作列 */}
       <div className="flex w-full justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl"></div>
-        <div className="flex gap-2 ">
-
-        <Button type="primary" 
-          onClick={showDrawer} 
-          className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          <FaPlus />
-          Create New Lab
-        </Button>
-        {/* <Button
-          type="primary"
-          onClick={sendRequest}
-          className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          <IoReload />
-          Reload Table
-        </Button> */}
-
+        <div className="text-gray-700 font-semibold text-xl">Lab Management</div>
+        <div className="flex gap-2">
+          {/* <Button 
+            onClick={() => fetchLabs(true)} 
+            icon={<IoReload />}
+            loading={loading}
+          >
+            Reload
+          </Button> */}
+          <Button
+            type="primary"
+            onClick={showDrawer}
+            className="flex items-center gap-2 bg-blue-500"
+            icon={<FaPlus />}
+          >
+            Create New Lab
+          </Button>
+        </div>
       </div>
-      </div>
-      <Table dataSource={loadedLab} columns={columns} />;
+
+      {/* 資料表格 */}
+      <Table
+        dataSource={labs}
+        columns={columns}
+        rowKey={(record) => record.name || record.id} // 確保每一列有唯一 key，避免報錯
+        loading={loading && labs.length === 0} // 只有在沒資料且載入中時才顯示 table loading
+        pagination={{ pageSize: 10 }}
+      />
+
+      {/* 新增 Lab 的 Drawer */}
       <CreateNewLab
+        visible={isDrawerVisible}
         onClose={onClose}
-        visible={Visible}
-        sendRequest={sendRequest}
+        sendRequest={() => fetchLabs(true)}
       />
     </>
   );
 };
+
 export default AdminTab_lab;

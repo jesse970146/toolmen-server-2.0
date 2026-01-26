@@ -3,7 +3,7 @@ import { Button, Card } from "antd";
 
 import WorkspaceList from "./WorkspaceList";
 import CreateNewWorkspace from "./CreateNewWorkspace";
-import GpuUsage from "./GpuUsage";
+
 
 import AuthContext from "../context/auth-context";
 import { IoReload } from "react-icons/io5";

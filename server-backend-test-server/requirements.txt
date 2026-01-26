@@ -9,8 +9,6 @@ python-dotenv
 marshmallow-sqlalchemy
 marshmallow
 flask-marshmallow
-# petname
-kubernetes
 anyio
 requests
 passlib

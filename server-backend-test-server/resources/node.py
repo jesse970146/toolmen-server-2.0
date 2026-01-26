@@ -29,7 +29,6 @@ class node(Resource):
         node_list = r.json()
 
         return jsonify({"nodes": node_list})
-        # return jsonify({"nodes": ["toolmen-server5"]})
 
 
 

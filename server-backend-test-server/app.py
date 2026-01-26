@@ -31,12 +31,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 app.config["JWT_BLOCKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
 CORS(app, origins=[
-    "https://server.toolmen.bime.ntu.edu.tw"
+    os.getenv("FRONTEND_BASE_URL")
 ])
-# open local cors for local test
-# CORS(app, origins=[
-#     "http://localhost:3000"
-# ])
 
 api = Api(app)
 # cors = CORS(app)
@@ -105,7 +101,7 @@ api.add_resource(WorkspaceList, '/workspaces')
 api.add_resource(Image, '/image/<string:image_name>')
 api.add_resource(ImageList, '/images')
 
-api.add_resource(ownership, '/ownership')
+api.add_resource(ownership, '/validate')
 api.add_resource(node, '/node')
 
 

@@ -14,7 +14,3 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
-# test for local
-DEBUG = True
-basedir = os.path.abspath(os.path.dirname(__file__))
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "database", "data.sqlite")

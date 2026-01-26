@@ -17,7 +17,7 @@ from models.workspace import WorkspaceModel
 
 from schemas.user import UserSchema
 from schemas.workspace import WorkspaceSchema
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from functions.decorator import admin_required, active_required
 
 api_k8s_base_url = os.getenv('API_K8S_BASE_URL')
@@ -62,12 +62,10 @@ class Workspace(Resource):
         if not workspace:
             abort(404, message=f"Workspace '{name}' not found.")
 
-        
         current_user = UserModel.find_by_id(get_jwt_identity())
         if workspace.user_name != current_user.username and (not current_user.is_admin):
             abort(401, message="Unauthorized")
-        # if workspace.user_name != UserModel.find_by_id(get_jwt_identity()).username and  (not UserModel.find_by_id(get_jwt_identity()).is_admin) :
-        #     abort(401, message="Unauthorized")
+
         else:
             workspace.status = "Deleting"
             workspace.save_to_db()
@@ -108,12 +106,10 @@ class WorkspaceList(Resource):
                         else:
                             print("API 請求失敗", response.status_code)
                             ws.status = f"Unknown"
-                            ws.save_to_db()
 
                     except Exception as e:
                         # 這是處理 requests連線錯誤 (例如 K8s API 掛掉)
                         ws.status = f"Unknown"
-                        ws.save_to_db()
 
                 except ObjectDeletedError:
                     # 這是本次修復的重點：
@@ -167,7 +163,6 @@ class WorkspaceList(Resource):
         except:
             abort(500, message="An error occurred inserting the workspace to DB.")
 
-        # time.sleep(3) 
 
         try:
             r = requests.post(f'{api_k8s_base_url}/create', json={
@@ -199,7 +194,6 @@ class WorkspaceLists(Resource):
         workspaces = WorkspaceModel.find_by_username(username)
         
         for ws in workspaces:
-            
             if ws.status == "":
                 try:
                     pod_name = ws.name
@@ -211,11 +205,9 @@ class WorkspaceLists(Resource):
                         else:
                             print("API 請求失敗", response.status_code)
                             ws.status = f"Unknown"
-                            # ws.save_to_db()
 
                     except Exception as e:
                         ws.status = f"Unknown"
-                        # ws.save_to_db()
 
                 except ObjectDeletedError:
                     # 這是本次修復的重點：

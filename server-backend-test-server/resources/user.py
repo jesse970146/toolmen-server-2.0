@@ -144,7 +144,6 @@ class UserList(Resource):
 
 class UserLogin(Resource):
     @classmethod
-    
     def post(self):
         user_json = request.get_json()
         

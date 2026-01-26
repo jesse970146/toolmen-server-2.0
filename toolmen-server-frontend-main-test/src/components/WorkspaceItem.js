@@ -3,7 +3,6 @@ import {
   Card,
   Button,
   Dropdown,
-  Menu,
   Tag,
   Tooltip,
   message,
@@ -85,18 +84,30 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
   const onJupyterHandler = () => window.open(baseURL + "/jupyter/", "_blank");
   const onDesktopHandler = () => window.open(baseURL + `/vnc/vnc.html?path=/${workspace.name}/websockify?password=vncpasswd`, "_blank");
 
-  // Menu
-  const menu = (
-    <Menu>
-      <Menu.Item key="restart" icon={<FaRedo />} onClick={onRestartHandler} disabled={workspace.status === "Creating" || loading} className="text-sm">
-        Restart
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="delete" danger icon={<FaTrashAlt />} onClick={() => { setDeleteInput(""); setIsDeleteModalOpen(true); }} className="text-sm">
-        Delete
-      </Menu.Item>
-    </Menu>
-  );
+  const items = [
+    {
+      key: "restart",
+      label: "Restart",
+      icon: <FaRedo />,
+      disabled: workspace.status === "Creating" || loading,
+      onClick: onRestartHandler, // 直接在這裡綁定點擊事件
+      className: "text-sm", // ClassName 現在寫在這裡
+    },
+    {
+      type: "divider", // 分隔線改用 type: 'divider'
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      icon: <FaTrashAlt />,
+      danger: true, // 紅色危險樣式
+      onClick: () => {
+        setDeleteInput("");
+        setIsDeleteModalOpen(true);
+      },
+      className: "text-sm",
+    },
+  ];
 
   return (
     <>
@@ -110,7 +121,7 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
           <Tag color={statusConfig.color} className="m-0 rounded-full px-3 py-1 text-sm font-medium border-0 flex items-center gap-2">
             {statusConfig.icon} {workspace.status} 
           </Tag>
-          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+          <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
             <Button type="text" shape="circle" icon={<FaEllipsisV className="text-gray-500 text-lg" />} />
           </Dropdown>
         </div>

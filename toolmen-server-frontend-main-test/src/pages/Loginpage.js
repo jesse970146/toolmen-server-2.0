@@ -112,6 +112,7 @@ const Loginpage = () => {
                     size="large"
                     prefix={<AiOutlineUser className="text-gray-400 w-5 h-5 mr-2" />}
                     placeholder="Username"
+                    autoComplete="username"
                   />
                 </Form.Item>
 
@@ -123,6 +124,7 @@ const Loginpage = () => {
                     size="large"
                     prefix={<FiLock className="text-gray-400 ml-0.5 mr-2" />}
                     placeholder="Password"
+                    autoComplete="current-password"
                   />
                 </Form.Item>
 

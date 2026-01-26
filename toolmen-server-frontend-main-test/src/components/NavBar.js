@@ -16,8 +16,8 @@ const NavBar = () => {
 
   return (
     <section className="h-12 z-10 flex items-center justify-between bg-gray-100 shadow-sm px-12 xl:px-44">
-      <text className="text-gray-700 font-semibold text-lg">Toolmen Lab</text>
-      <div Name="Header-Right" className="flex items-center gap-6">
+      <span className="text-gray-700 font-semibold text-lg">Toolmen Lab</span>
+      <div name="Header-Right" className="flex items-center gap-6">
         {/* <FaBullhorn />
         <FaMoon /> */}
         {/* <Button type="text" loading={buttonLoading} onClick={signOutHandler} >

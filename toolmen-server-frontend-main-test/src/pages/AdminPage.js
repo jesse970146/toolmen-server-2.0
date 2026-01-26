@@ -14,7 +14,7 @@ import AdminTab_user from "../components/AdminTab_user";
 import AdminTab_image from "../components/AdminTab_image";
 import AdminTab_lab from "../components/AdminTab_lab";
 
-const { TabPane } = Tabs;
+// const { TabPane } = Tabs;
 
 // ... (Import 部分相同)
 
@@ -48,29 +48,29 @@ const AdminPage = () => {
           className="admin-tabs" // 如果需要寫 CSS 可以用這個
         >
           {/* 內容跟上面一樣，只是排版會自動變 */}
-          <TabPane tab={renderTabTitle("Workspaces", AppstoreOutlined)} key="admin-ws">
+          <items tab={renderTabTitle("Workspaces", AppstoreOutlined)} key="admin-ws">
             <div className="px-4">
                <AdminTab_workspace isActive={adminActiveTab === "admin-ws"} />
             </div>
-          </TabPane>
+          </items>
           
-          <TabPane tab={renderTabTitle("Users", TeamOutlined)} key="admin-user">
+          <items tab={renderTabTitle("Users", TeamOutlined)} key="admin-user">
              <div className="px-4">
                 <AdminTab_user isActive={adminActiveTab === "admin-user"} />
              </div>
-          </TabPane>
+          </items>
           
-          <TabPane tab={renderTabTitle("Images", CloudServerOutlined)} key="admin-image">
+          <items tab={renderTabTitle("Images", CloudServerOutlined)} key="admin-image">
              <div className="px-4">
                 <AdminTab_image isActive={adminActiveTab === "admin-image"} />
              </div>
-          </TabPane>
+          </items>
           
-          <TabPane tab={renderTabTitle("Labs", ExperimentOutlined)} key="admin-lab">
+          <items tab={renderTabTitle("Labs", ExperimentOutlined)} key="admin-lab">
              <div className="px-4">
                 <AdminTab_lab isActive={adminActiveTab === "admin-lab"} />
              </div>
-          </TabPane>
+          </items>
         </Tabs>
       </div>
     </div>

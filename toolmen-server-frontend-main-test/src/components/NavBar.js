@@ -1,23 +1,33 @@
-import React, { useContext, useState } from "react";
-import { Dropdown, Avatar, Badge } from "antd"; // 移除沒用到的 Button, Menu
+import React, { useContext, useMemo } from "react";
+import { Dropdown, Avatar} from "antd"; // 移除沒用到的 Button, Menu
 import {
-  UserOutlined,
   LogoutOutlined,
   SettingOutlined,
   AppstoreOutlined,
   QuestionCircleOutlined,
   SafetyCertificateOutlined,
-  BellOutlined
 } from "@ant-design/icons";
 import { useNavigate, Link, useLocation } from "react-router-dom"; 
-
 import AuthContext from "../context/auth-context";
+import { createAvatar } from '@dicebear/core';
+import { loreleiNeutral } from '@dicebear/collection'; // 引入你喜歡的風格
 
 const NavBar = () => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
+  const avatarSvg = useMemo(() => {
+    const avatar = createAvatar(loreleiNeutral, {
+      seed: auth.userInfo?.username || 'default', // 用名字當種子
+      size: 128,
+      backgroundColor: ["b6e3f4","c0aede","d1d4f9"], // 可選：隨機背景色池
+      backgroundType: ["gradientLinear","solid"]
+    });
+    // 轉成 Data URI 格式 (data:image/svg+xml;utf8,...)
+    return avatar.toDataUri();
+  }, [auth.userInfo?.username]);
+
   const handleLogout = () => {
     // 你的登出邏輯
     auth.logout();
@@ -26,12 +36,6 @@ const NavBar = () => {
 
   // --- 修改重點 1: 下拉選單加入 Settings ---
   const userMenuArgs = [
-    // {
-    //   key: 'profile',
-    //   label: <span className="font-medium">My Profile</span>,
-    //   icon: <UserOutlined />,
-    //   // onClick: () => navigate("/profile"), // 如果你有做 Profile 頁面
-    // },
     {
       key: 'settings', // 加入 Settings
       label: 'Settings',
@@ -113,10 +117,11 @@ const NavBar = () => {
             <Dropdown menu={{ items: userMenuArgs }} trigger={['click']} placement="bottomRight">
               <div className="flex items-center gap-3 cursor-pointer p-1 pr-2 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200">
                 <Avatar 
-                  style={{ backgroundColor: '#2563EB' }} 
-                  src={auth.userInfo?.avatarUrl} 
-                  icon={<UserOutlined />}
+                  size={45} // 可以調大一點看清楚細節
+                  src={avatarSvg}
+                  style={{ backgroundColor: 'transparent' }} // 圖片通常自帶背景，這裡設透明
                 >
+                  {/* 這裡是文字內容 */}
                   {auth.userInfo?.username?.[0]?.toUpperCase()}
                 </Avatar>
                 

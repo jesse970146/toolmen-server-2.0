@@ -1,60 +1,52 @@
-import React, { useState, useEffect, useContext} from "react";
-import { Empty, Button } from "antd";
-import  AuthContext  from "../context/auth-context";
-import webSocket from "socket.io-client";
-import {
-  // Button,
-  Space,
-  Select,
-  Drawer,
-  Form,
-  Row,
-  Col,
-  Input,
-  notification,
-} from "antd";
-const SettingTab = (props) => {
+import React, { useState, useContext } from "react";
+import { Button, Form, Input, notification } from "antd";
+import AuthContext from "../context/auth-context";
+
+const SettingTab = () => {
   const auth = useContext(AuthContext);
-  console.log("👀 userInfo:", auth.userInfo);
-  // const [ws, setWs] = useState(null);
+  const [form] = Form.useForm();
+  
+  // 新增 loading 狀態，避免重複提交並提供視覺回饋
+  const [loading, setLoading] = useState(false);
 
-  // const connectWebSocket = () => {
-  //   //開啟
-  //   setWs(webSocket("http://localhost:7890/ws/dataPush"));
-  // };
-    const [form] = Form.useForm();
-    const onErrorHandler = (err) => {
-        notification["error"]({
-          message: "Workspace Creation Failed!",
-          duration: 7,
-          description:
-          (
-            <>
-              An error has occurred. Please try again later.<br />
-              Error message: {err?.message}
-            </>
-          ),
-            // "An error has occurred. Please try again later. <br /> Error message: " +
-            // err.message,
-          style: {
-            width: 500,
-          },
-        });
-      };
-
-   
-  const onFinish = (values) => {
-    console.log('變更密碼資料：', values);
-    ChangePassword();
-    form.resetFields(); // 可選：成功送出後清空表單
-    
+  // 錯誤通知處理
+  const onErrorHandler = (err) => {
+    notification.error({
+      message: "Change Password Failed",
+      duration: 5,
+      description: (
+        <>
+          An error has occurred. Please try again later.<br />
+          Error message: {err?.message || "Unknown error"}
+        </>
+      ),
+      style: { width: 500 },
+    });
   };
-  const ChangePassword = async () => {
-    // setCreating(true);
+
+  // 成功通知處理
+  const onSuccessHandler = () => {
+    notification.success({
+      message: "Password Changed Successfully",
+      duration: 3,
+      description: (
+        <>
+          The password has been updated. <br />
+          You will be logged out in 3 seconds. Please login again.
+        </>
+      ),
+      style: { width: 500 },
+    });
+  };
+
+  const changePassword = async (values) => {
+    setLoading(true);
     try {
+      const userId = auth.userInfo?.id;
+      if (!userId) throw new Error("User ID not found.");
+
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_BASE_URL+ "/user/" +
-          (auth.userInfo.id || "no-input"),
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/user/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -62,121 +54,104 @@ const SettingTab = (props) => {
             "Authorization": "Bearer " + auth.token,
           },
           body: JSON.stringify({
-            oldPassword: form.getFieldValue("oldPassword"),
-            newPassword: form.getFieldValue("newPassword"),
-            event: "resetPassword"
+            oldPassword: values.oldPassword,
+            newPassword: values.newPassword,
+            event: "resetPassword",
           }),
         }
       );
+
       const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error(responseData.message);
+        throw new Error(responseData.message || "Request failed");
       }
-      // props.sendRequest();
-      // console.log("sendRequest prop:", props.sendRequest);
-      // props.onClose();
-      // setCreating(false);
+
+      // --- 成功邏輯放在這裡 ---
+      onSuccessHandler();
+      form.resetFields();
+      
+      // 縮短登出時間，5秒體感太久
+      setTimeout(() => {
+        auth.logout();
+      }, 3000);
+
     } catch (err) {
+      // --- 失敗邏輯放在這裡 ---
+      console.error(err);
       onErrorHandler(err);
-      // setCreating(false);
-      console.log(err);
+    } finally {
+      // 無論成功或失敗，都解除 loading 狀態
+      setLoading(false);
     }
-    notification["success"]({
-          message: "Password change successfully",
-          duration: 3,
-          description:
-          (
-            <>
-              The password has changed successfully. <br />
-              Will logout in 5 seconds, please login again.
-            </>
-          ),
-          style: {
-            width: 500,
-          },
-        });
-    form.resetFields();
-    setTimeout(auth.logout, 5000);
   };
-  // useEffect(() => {
-  //   if (ws) {
-  //     //連線成功在 console 中打印訊息
-  //     console.log("success connect!");
-  //     //設定監聽
-  //     initWebSocket();
-  //   }
-  // }, [ws]);
 
-  // const initWebSocket = () => {
-  //   //對 getMessage 設定監聽，如果 server 有透過 getMessage 傳送訊息，將會在此被捕捉
-  //   ws.on("push_data", (message) => {
-  //     console.log(message);
-  //   });
-  // };
-
-  // const sendMessage = () => {
-  //   //以 emit 送訊息，並以 getMessage 為名稱送給 server 捕捉
-  //   ws.emit("sub", "只回傳給發送訊息的 client");
-  // };
+  const onFinish = (values) => {
+    changePassword(values);
+  };
 
   return (
-    <div>
-      {/* <Button onClick={connectWebSocket}>connectWebSocket</Button>
-      <Button onClick={sendMessage}>sendMessage</Button> */}
-      <Form form={form} onFinish={onFinish} layout="vertical">
-      <Row gutter={16}>
-        <Col span={24}>
-          <Form.Item
-            name="oldPassword"
-            label="Old Password"
-            rules={[{ required: true, message: "Please enter old password" }]}
-          >
-            <Input.Password placeholder="Enter old password" />
-          </Form.Item>
-        </Col>
-      </Row>
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: "20px 0" }}>
+      <Form 
+        form={form} 
+        onFinish={onFinish} 
+        layout="vertical"
+        autoComplete="off" // 避免瀏覽器自動填充干擾
+      >
+        <Form.Item
+          name="oldPassword"
+          label="Old Password"
+          rules={[{ required: true, message: "Please enter your old password" }]}
+        >
+          <Input.Password placeholder="Enter old password" />
+        </Form.Item>
 
-      <Row gutter={16}>
-        <Col span={24}>
-          <Form.Item
-            name="newPassword"
-            label="New Password"
-            rules={[{ required: true, message: "Please enter new password" }]}
-            hasFeedback
-          >
-            <Input.Password placeholder="Enter new password" />
-          </Form.Item>
-        </Col>
-      </Row>
+        <Form.Item
+          name="newPassword"
+          label="New Password"
+          rules={[
+            { required: true, message: "Please enter a new password" },
+            // { min: 6, message: "Password must be at least 6 characters" } // 建議加入長度限制
+          ]}
+          hasFeedback
+        >
+          <Input.Password placeholder="Enter new password" />
+        </Form.Item>
 
-      <Row gutter={16}>
-        <Col span={24}>
-          <Form.Item
-            name="confirmPassword"
-            label="Confirm New Password"
-            dependencies={['newPassword']}
-            hasFeedback
-            rules={[
-              { required: true, message: "Please confirm your new password" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('newPassword') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error("Passwords do not match"));
-                },
-              }),
-            ]}
-          >
-            <Input.Password placeholder="Confirm new password" />
-          </Form.Item>
-        </Col>
-      </Row>
+        <Form.Item
+          name="confirmPassword"
+          label="Confirm New Password"
+          dependencies={['newPassword']}
+          hasFeedback
+          rules={[
+            { required: true, message: "Please confirm your new password" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('newPassword') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error("The two passwords do not match!"));
+              },
+            }),
+          ]}
+        >
+          <Input.Password placeholder="Confirm new password" />
+        </Form.Item>
 
-      <Button type="primary" className="bg-blue-500" htmlType="submit">Submit</Button>
-    </Form>
+        <Form.Item>
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            loading={loading} // 綁定 loading 狀態
+            block // 讓按鈕填滿寬度 (可選)
+            className="bg-blue-500"
+          >
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
-    
   );
 };
+
 export default SettingTab;

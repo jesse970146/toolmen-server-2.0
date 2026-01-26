@@ -7,14 +7,20 @@ import {
 } from "react-router-dom";
 
 import AuthContext from "./context/auth-context";
-import Homepage from "./pages/Homepage";
+// import Homepage from "./pages/Homepage";
 import Loginpage from "./pages/Loginpage";
 import Errorpage from "./pages/Errorpage";
 // 引入我們剛做好的 Loadingpage
 import Loadingpage from "./pages/Loadingpage"; 
-// 如果之後要用等待頁面，記得確認檔名拼字 (Waiting vs Wating)
-// import LoginWaitingpage from "./pages/LoginWaitingpage"; 
 
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+import WorkspaceTab from "./components/WorkspaceTab";
+import SettingTab from "./components/SettingTab";
+import HelpTab from "./components/HelpTab";
+import AdminPage from "./pages/AdminPage"; // 剛剛建立的
+
+import { Outlet } from "react-router-dom";
 // Cookie 讀取工具 (放在 Component 外層即可)
 function getCookie(name) {
   const cookies = document.cookie.split(';');
@@ -26,6 +32,18 @@ function getCookie(name) {
   }
   return null;
 }
+const MainLayout = () => {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <NavBar />
+      {/* Outlet 是 React Router 用來渲染子路由內容的地方 */}
+      <div className="flex-auto bg-gray-100 pt-8 px-6 xl:px-44 pb-12">
+         <Outlet />
+      </div>
+      <Footer />
+    </div>
+  );
+};
 
 const App = () => {
   const initToken = getCookie("access_token_cookie");
@@ -91,10 +109,30 @@ const App = () => {
 
   if (token && userInfo) { 
     // [情境 1] 已登入且資料載入完成 -> 顯示主頁
+    // routes = (
+    //   <>
+    //     <Route path="/" element={<Homepage />} />
+    //     <Route path="*" element={<Navigate to="/" replace />} />
+    //   </>
+    // );
     routes = (
       <>
-        <Route path="/" element={<Homepage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 把 MainLayout 當作父路由 */}
+        <Route path="/" element={<MainLayout />}>
+          {/* 首頁預設顯示 Workspace */}
+          <Route index element={<WorkspaceTab isActive={true} />} />
+          
+          <Route path="settings" element={<SettingTab />} />
+          <Route path="help" element={<HelpTab />} />
+          
+          {/* Admin 路由保護 */}
+          {userInfo.is_admin && (
+             <Route path="admin" element={<AdminPage />} />
+          )}
+          
+          {/* 萬一亂打網址，導回首頁 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
       </>
     );
   } else if (token && !userInfo) { 
@@ -110,7 +148,6 @@ const App = () => {
     routes = (
       <>
         <Route path="/login" element={<Loginpage />} />
-        {/* <Route path="/login/google" element={<LoginWaitingpage />} /> */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </>
     );

@@ -1,0 +1,14 @@
+psycopg2-binary
+Flask
+Flask-JWT-Extended
+Flask-RESTful
+Flask-SQLAlchemy
+flask-cors
+authlib
+python-dotenv
+marshmallow-sqlalchemy
+marshmallow
+flask-marshmallow
+anyio
+requests
+passlib

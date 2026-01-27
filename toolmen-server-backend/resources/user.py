@@ -16,10 +16,26 @@ from functions.send_email import send_account_created_email
 from functions.random_password import generate_password
 from models.user import UserModel
 from schemas.user import UserSchema
-from blacklist import BLACKLIST
+
+import redis
+import os 
+
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 user_schema = UserSchema()
 user_list_schema = UserSchema(many=True)
+
+jwt_redis_blocklist = redis.StrictRedis(
+    host=os.getenv("REDIS_URL", "localhost"),
+    port=int(os.getenv("REDIS_PORT", 6379)),
+    db=0,
+    password=os.getenv("REDIS_PASSWORD"),
+    decode_responses=True
+)
+
+ACCESS_EXPIRES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 604800))
 
 class User(Resource):
     @classmethod
@@ -163,9 +179,9 @@ class UserLogout(Resource):
     @jwt_required()
     def post(self):
         jti = get_jwt()["jti"]  # jti is "JWT ID", a unique identifier for a JWT.
-        # user_id = get_jwt_identity()
-        BLACKLIST.add(jti)
+        jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
         return {"message": "Successfully logged out"}, 200
+
 
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)

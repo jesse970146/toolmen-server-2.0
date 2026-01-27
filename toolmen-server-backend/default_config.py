@@ -1,11 +1,10 @@
-from datetime import timedelta
+
 import os 
 
 # secrets -> non secrets -> use default config
 DEBUG = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 PROPAGATE_EXCEPTIONS = True
-JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
 JWT_BLACKLIST_ENABLED = True
 JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 

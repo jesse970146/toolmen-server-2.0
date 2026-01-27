@@ -5,7 +5,6 @@ from resources.workspace import Workspace, WorkspaceList, WorkspaceLists
 from resources.user import  UserLogin, User, UserLogout, TokenRefresh, UserList
 from resources.ownership import ownership
 from resources.node import node
-from blacklist import BLACKLIST
 from default_admin import default_admin
 from default_lab import default_lab
 from default_image import default_image
@@ -20,16 +19,20 @@ from flask_jwt_extended import JWTManager
 from marshmallow import ValidationError
 from dotenv import load_dotenv
 
+import redis
 
 load_dotenv(".env")
 
-
 app = Flask(__name__)
+
+ACCESS_EXPIRES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 604800))
 
 app.config.from_object("default_config")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 app.config["JWT_BLOCKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
+
 CORS(app, origins=[
     os.getenv("FRONTEND_BASE_URL")
 ])
@@ -40,6 +43,14 @@ api = Api(app)
 # CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 jwt = JWTManager(app)
+
+jwt_redis_blocklist = redis.StrictRedis(
+    host=os.getenv("REDIS_URL", "localhost"),
+    port=int(os.getenv("REDIS_PORT", 6379)),
+    db=0,
+    password=os.getenv("REDIS_PASSWORD"),
+    decode_responses=True
+)
 
 frontend_base_url = os.getenv("FRONTEND_BASE_URL")
 
@@ -63,10 +74,13 @@ with app.app_context():
 # def create_first_user():
 #     default_admin()
 
-
+# Callback function to check if a JWT exists in the redis blocklist
 @jwt.token_in_blocklist_loader
-def check_if_token_in_blocklist(jwt_header, jwt_payload):
-    return jwt_payload["jti"] in BLACKLIST
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    jti = jwt_payload["jti"]
+    token_in_redis = jwt_redis_blocklist.get(jti)
+    return token_in_redis is not None
+
 
 # Jesse新增
 # Token 過期

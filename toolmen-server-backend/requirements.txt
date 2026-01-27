@@ -13,3 +13,4 @@ anyio
 requests
 passlib
 gunicorn
+redis

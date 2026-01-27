@@ -1,41 +1,48 @@
-### Flask ###
+# --- 版本控制 (務必加上，.git 資料夾通常很大) ---
+**/.git
+.gitignore
+
+# --- IDE 與系統檔 ---
+**/.DS_Store
+.vscode
+.idea
+
+# --- Flask 敏感配置 ---
 instance/*
 !instance/.gitignore
 .webassets-cache
 .env
+.env.*
 
-### Flask.Python Stack ###
-# Byte-compiled / optimized / DLL files
+# --- Python 編譯檔與快取 ---
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.coverage
+htmlcov/
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# Environments
+# --- 虛擬環境 (絕對不能複製進去) ---
 .venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
 
-# Database
+# --- 資料庫 (避免覆蓋或洩漏本地開發資料) ---
 *.Database
 *.database
 *.db
 *.sqlite
+*.sqlite3
 
+# --- 部署與打包暫存檔 ---
+*.manifest
+*.spec
+build/
+dist/
+*.egg-info/
+
+# --- Docker 本身 ---
 Dockerfile*
-dockerfile*
+docker-compose*
+.dockerignore

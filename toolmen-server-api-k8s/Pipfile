@@ -4,12 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "==2.1.2"
-kubernetes = "==23.6.0"
-flask-cors = "==3.0.10"
-python-dotenv = "==0.20.0"
+flask = "==3.1.2"
+kubernetes = "==35.0.0"
+flask-cors = "==6.0.2"
+python-dotenv = "==1.2.1"
+gunicorn = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.11"

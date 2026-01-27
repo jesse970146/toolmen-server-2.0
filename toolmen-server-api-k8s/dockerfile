@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.11
 
 RUN pip install pipenv
 ENV PROJECT_DIR /usr/local/src/webapp
@@ -6,5 +6,7 @@ WORKDIR ${PROJECT_DIR}
 COPY . ${PROJECT_DIR}/
 RUN pipenv install --system --deploy
 
+
 EXPOSE 3476
-ENTRYPOINT ["python", "app.py", "--host=0.0.0.0"]
+
+CMD ["gunicorn", "-w", "16", "-b", "0.0.0.0:3476", "--access-logfile", "-", "app:app"]

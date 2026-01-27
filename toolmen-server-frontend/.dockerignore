@@ -1,10 +1,28 @@
-**/.git
-**/.DS_Store
+# --- 依賴與暫存檔 (最重要，大幅影響速度) ---
 **/node_modules
-*.log
+npm-debug.log
+
+# --- 本地編譯產物 (避免上傳舊的編譯檔) ---
+build
+dist
+coverage
+
+# --- Git 版本控制 ---
+**/.git
+.gitignore
+
+# --- IDE 與系統檔 ---
+**/.DS_Store
+.vscode
+.idea
+
+# --- Docker 相關 (不需要包進 Image 裡) ---
 Dockerfile*
 docker-compose*
 .dockerignore
-.git
-.gitignore
-.vscode
+
+# --- 敏感資料 (絕對不能包進 Image) ---
+.env
+.env.local
+.env.*.local
+# .env.example 通常可以留著當參考，但忽略也沒關係

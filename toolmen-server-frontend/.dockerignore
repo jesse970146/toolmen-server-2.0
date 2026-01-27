@@ -21,8 +21,3 @@ Dockerfile*
 docker-compose*
 .dockerignore
 
-# --- 敏感資料 (絕對不能包進 Image) ---
-.env
-.env.local
-.env.*.local
-# .env.example 通常可以留著當參考，但忽略也沒關係

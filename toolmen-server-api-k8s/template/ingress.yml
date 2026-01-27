@@ -5,7 +5,7 @@ metadata:
   namespace: {{ namespace }}
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/auth-url: 'https://server-api.toolmen.bime.ntu.edu.tw/validate'
+    nginx.ingress.kubernetes.io/auth-url: 'https://server-backend.toolmen.bime.ntu.edu.tw/validate'
     nginx.ingress.kubernetes.io/configuration-snippet: ' if ($request_uri ~* "jupyter") {         break;       }'
     nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
     nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
@@ -15,7 +15,7 @@ metadata:
 spec:
   tls:
     - hosts:
-        - server.toolmen.bime.ntu.edu.tw
+        - {{ host }}
       secretName: server-frontend-tls-secret
   rules:
     - host: {{ host }}

@@ -43,7 +43,17 @@ jwt = JWTManager(app)
 
 frontend_base_url = os.getenv("FRONTEND_BASE_URL")
 
+db.init_app(app)
+ma.init_app(app)
 
+with app.app_context():
+    db.create_all()
+    try:
+        default_lab()
+        default_admin()
+        default_image()
+    except Exception as e:
+        print(f"Skipping default data creation: {e}")
 # @app.before_first_request
 # def create_tables():
 #     db.create_all()
@@ -119,13 +129,4 @@ api.add_resource(TokenRefresh, "/refresh")
 
 
 if __name__ == "__main__":
-    db.init_app(app)
-    ma.init_app(app)
-
-    with app.app_context():
-        db.create_all()
-        default_lab()
-        default_admin()
-        default_image()
-
     app.run(port=8080, host='0.0.0.0')

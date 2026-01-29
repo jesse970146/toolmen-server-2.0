@@ -201,9 +201,9 @@ const CreateNewWorkspace = (props) => {
                       <span className="font-medium text-gray-800">
                         {displayName}
                       </span>                                     
-                      {image.Description && (
+                      {image.description && (
                         <span className="text-xs text-gray-500 whitespace-normal break-words leading-tight mt-1">
-                          {image.Description}
+                          {image.description}
                         </span>
                       )}
                     </div>

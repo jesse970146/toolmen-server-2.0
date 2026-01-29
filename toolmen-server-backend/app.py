@@ -32,6 +32,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 app.config["JWT_BLOCKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,     # 每次使用前檢查
+    "pool_recycle": 1800,      # 每 30 分鐘強制重連一次 (避開防火牆 1小時的限制)
+}
 
 CORS(app, origins=[
     os.getenv("FRONTEND_BASE_URL")

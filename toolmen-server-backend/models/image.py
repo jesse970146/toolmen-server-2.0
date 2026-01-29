@@ -8,7 +8,7 @@ class ImageModel(db.Model):
 
     name = db.Column(db.String(80), primary_key=True)
     value = db.Column(db.String(80), unique=True)
-    Description = db.Column(db.String(256), default="")
+    description = db.Column(db.String(256), default="")
 
     @classmethod
     def find_by_name(cls, name):

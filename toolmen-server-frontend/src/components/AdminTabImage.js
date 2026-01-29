@@ -110,9 +110,9 @@ const AdminTabImage = ({ isActive }) => {
       ),
     },
     {
-      title: "Description",
-      dataIndex: "Description", // 注意：這裡維持您原本的大小寫，如果後端回傳是 description 請自行修改
-      key: "Description",
+      title: "description",
+      dataIndex: "description", // 注意：這裡維持您原本的大小寫，如果後端回傳是 description 請自行修改
+      key: "description",
       width: 500,
       render: (text) => (
         <div style={{ whiteSpace: "normal", wordBreak: "break-word" }}>

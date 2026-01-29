@@ -40,7 +40,7 @@ const CreateNewImage = ({ visible, onClose, sendRequest }) => {
         body: JSON.stringify({
           name: values.name,
           value: values.value,
-          Description: values.Description, // 注意：後端似乎需要大寫開頭的 Description
+          description: values.description, // 注意：後端似乎需要大寫開頭的 Description
         }),
       });
 
@@ -126,8 +126,8 @@ const CreateNewImage = ({ visible, onClose, sendRequest }) => {
         </Form.Item>
 
         <Form.Item
-          name="Description"
-          label="Description"
+          name="description"
+          label="description"
           rules={[{ required: true, message: "Please enter description" }]}
         >
           <Input.TextArea 

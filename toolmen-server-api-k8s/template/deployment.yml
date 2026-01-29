@@ -34,25 +34,43 @@ spec:
               value: {{ password }}
             - name: POD_NAME
               value: {{ name }}
-          {% if lab == 'Toolmen' %}
+          
           volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+            - name: nfs-nas-personal
+              mountPath: /home/{{ username}}
+              subPath: user_home_dir/{{ lab }}/{{ username }}/{{ version }}
+            {% if lab == 'Toolmen' %}
             - name: nfs-nas-data
               mountPath: /home/nas  
             - name: nfs-nas-data2
               mountPath: /home/nas2
             - name: nfs-nas-pig
               mountPath: /home/nas-pig 
-            - name: nfs-nas-personal
-              mountPath: /home/{{ username}}
-              subPath: user_home_dir/{{ lab }}/{{ username }}/{{ version }}
-          {% endif %}
+            {% endif %}
+            {% if lab == 'BBLAB' %}
+            - name: nfs-nas405-data 
+              mountPath: /home/nas  
+            {% endif %}
+            {% if lab == 'Tsukuba' %}
+            - name: nfs-tsukuba  
+              mountPath: /home/nas  
+            {% endif %}
           resources:
             requests:
               memory: "512Mi"
             limits:
-              memory: "40Gi"
-      {% if lab == 'Toolmen' %}
+              memory: "60Gi"
+      
       volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: nfs-nas-personal
+          persistentVolumeClaim:
+            claimName: nfs-nas-personal
+        {% if lab == 'Toolmen' %}
         - name: nfs-nas-data
           persistentVolumeClaim:
             claimName: nfs-nas-data
@@ -62,7 +80,15 @@ spec:
         - name: nfs-nas-pig
           persistentVolumeClaim:
             claimName: nfs-nas-pig
-        - name: nfs-nas-personal
+        {% endif %}
+        {% if lab == 'BBLAB' %}
+        - name: nfs-nas405-data 
           persistentVolumeClaim:
-            claimName: nfs-nas-personal
-      {% endif %}
+            claimName: nfs-nas405-data 
+        {% endif %}
+        {% if lab == 'Tsukuba' %}
+        - name: nfs-tsukuba  
+          persistentVolumeClaim:
+            claimName: nfs-tsukuba  
+        {% endif %}
+

@@ -82,7 +82,7 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
   // Links
   const baseURL = "https://server.toolmen.bime.ntu.edu.tw/" + workspace.name;
   const onJupyterHandler = () => window.open(baseURL + "/jupyter/", "_blank");
-  const onDesktopHandler = () => window.open(baseURL + `/vnc/vnc.html?path=/${workspace.name}/websockify?password=vncpasswd`, "_blank");
+  const onDesktopHandler = () => window.open(baseURL + `/vnc/vnc.html?path=${workspace.name}/websockify?password=vncpasswd`, "_blank");
 
   const items = [
     {

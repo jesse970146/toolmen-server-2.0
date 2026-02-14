@@ -2,12 +2,18 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Button, Table, message, Modal, Space } from "antd";
 import AuthContext from "../context/auth-context";
 
+
 const AdminTabWorkspace = ({ isActive }) => {
   const auth = useContext(AuthContext);
 
   // 狀態管理
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10); 
+  const onShowSizeChange = (current, size) => {
+    setPageSize(size);
+  };
+
 
   // 取得 Workspace 列表
   const fetchWorkspaces = useCallback(async (showLoading = false) => {
@@ -150,7 +156,7 @@ const AdminTabWorkspace = ({ isActive }) => {
         columns={columns} 
         rowKey={(record) => record.name || record.id} 
         loading={loading && workspaces.length === 0}
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: pageSize, showSizeChanger: true, onShowSizeChange: onShowSizeChange, defaultCurrent: 1 }} // ✅ 加上分頁設定
         scroll={{ x: 1000 }} // ✅ 這裡加上了橫向捲動設定
       />
     </>

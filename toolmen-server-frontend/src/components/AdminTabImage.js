@@ -11,7 +11,11 @@ const AdminTabImage = ({ isActive }) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-
+  const [pageSize, setPageSize] = useState(10); 
+  const onShowSizeChange = (current, size) => {
+    setPageSize(size);
+  };
+  
   // 開啟/關閉 Drawer
   const showDrawer = () => setIsDrawerVisible(true);
   const onClose = () => setIsDrawerVisible(false);
@@ -159,7 +163,7 @@ const AdminTabImage = ({ isActive }) => {
         columns={columns} 
         rowKey={(record) => record.name || record.id} // 確保每一行都有唯一 ID
         loading={loading && images.length === 0} // 只有在沒資料且正在載入時才轉圈
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: pageSize, showSizeChanger: true, onShowSizeChange: onShowSizeChange, defaultCurrent: 1 }} // ✅ 加上分頁設定
       />
       
       <CreateNewImage

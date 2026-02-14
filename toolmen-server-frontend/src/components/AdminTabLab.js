@@ -11,6 +11,10 @@ const AdminTabLab = ({ isActive }) => {
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+  const [pageSize, setPageSize] = useState(10); 
+  const onShowSizeChange = (current, size) => {
+    setPageSize(size);
+  };
 
   // 開啟/關閉 Drawer
   const showDrawer = () => setIsDrawerVisible(true);
@@ -145,7 +149,7 @@ const AdminTabLab = ({ isActive }) => {
         columns={columns}
         rowKey={(record) => record.name || record.id} // 確保每一列有唯一 key，避免報錯
         loading={loading && labs.length === 0} // 只有在沒資料且載入中時才顯示 table loading
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: pageSize, showSizeChanger: true, onShowSizeChange: onShowSizeChange, defaultCurrent: 1 }} // ✅ 加上分頁設定
       />
 
       {/* 新增 Lab 的 Drawer */}

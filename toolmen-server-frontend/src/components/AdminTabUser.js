@@ -13,6 +13,10 @@ const AdminTabUser = ({ isActive }) => {
   const [users, setUsers] = useState([]);
   const [labList, setLabList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10); 
+  const onShowSizeChange = (current, size) => {
+    setPageSize(size);
+  };
   
   // Drawer 狀態
   const [isCreateDrawerVisible, setIsCreateDrawerVisible] = useState(false);
@@ -273,7 +277,7 @@ const AdminTabUser = ({ isActive }) => {
         dataSource={users}
         columns={columns}
         loading={loading && users.length === 0} // 只有初次沒資料時顯示轉圈
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: pageSize, showSizeChanger: true, onShowSizeChange: onShowSizeChange, defaultCurrent: 1 }} // ✅ 加上分頁設定
         scroll={{ x: 1000 }} // 如果欄位太多，允許橫向捲動
       />
 

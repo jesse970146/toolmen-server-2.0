@@ -116,7 +116,7 @@ const NavBar = ({ isDark, setIsDark }) => {
 
       {/* 右側: 使用者資訊 */}
       <div className="flex items-center gap-4">
-        <Tooltip title={isDark ? "切換為淺色模式" : "切換為深色模式"}>
+        <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
           <Button
             type="text"
             shape="circle"

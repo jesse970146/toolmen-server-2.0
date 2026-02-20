@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import {
+  App,
   Button,
   Drawer,
   Form,
@@ -8,8 +9,6 @@ import {
   Input,
   InputNumber,
   Switch,
-  notification,
-  message,
   Divider
 } from "antd";
 import { UserOutlined, SafetyCertificateOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
@@ -19,7 +18,7 @@ const EditUser = ({ user, visible, onClose, sendRequest }) => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
-
+  const { notification, message } = App.useApp();
   // 初始化表單
   useEffect(() => {
     if (user && visible) {
@@ -110,16 +109,16 @@ const EditUser = ({ user, visible, onClose, sendRequest }) => {
         requiredMark="optional"
       >
         {/* 1. 基本資訊區 (唯讀) */}
-        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-          <h3 className="text-gray-500 text-xs font-bold uppercase mb-3 tracking-wider">Basic Info (Read Only)</h3>
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 dark:bg-gray-700/50 dark:border-gray-600">
+          <h3 className="text-gray-500 text-xs font-bold uppercase mb-3 tracking-wider dark:text-gray-400">Basic Info (Read Only)</h3>
           <Row gutter={16}>
             <Col span={12}>
-              <div className="text-xs text-gray-400 mb-1">Username</div>
-              <div className="text-sm font-medium text-gray-700">{user?.username}</div>
+              <div className="text-xs text-gray-400 mb-1 dark:text-gray-500">Username</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">{user?.username}</div>
             </Col>
             <Col span={12}>
-              <div className="text-xs text-gray-400 mb-1">Lab Name</div>
-              <div className="text-sm font-medium text-gray-700">{user?.lab_name}</div>
+              <div className="text-xs text-gray-400 mb-1 dark:text-gray-500">Lab Name</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">{user?.lab_name}</div>
             </Col>
           </Row>
         </div>

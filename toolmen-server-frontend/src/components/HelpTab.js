@@ -9,18 +9,19 @@ import {
 
 // Images
 import createWorkspaceImg from "../assets/images/createWorkspace.png";
+import createWorkspaceImgDark from "../assets/images/createWorkspace-dark.png";
 import homepageImg from "../assets/images/Homepage.png";
-
+import homepageImgDark from "../assets/images/Homepage-dark.png";
 const { Title, Paragraph, Text, Link } = Typography;
 
-const HelpTab = () => {
+const HelpTab = ({isDark}) => {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-in ">
       
       {/* 1. Header Section */}
-      <div className="text-center mb-10">
-        <Title level={1} className="!mb-2">Toolmen 2.0 User Guide</Title>
-        <Paragraph type="secondary" className="text-lg">
+      <div className="text-center mb-10 dark:text-white">
+        <Title level={1} className="!mb-2 dark:text-white">Toolmen 2.0 User Guide</Title>
+        <Paragraph type="secondary" className="text-lg dark:text-gray-300">
           Everything you need to know to get started with your workspaces.
         </Paragraph>
       </div>
@@ -58,21 +59,24 @@ const HelpTab = () => {
         
         {/* Step 1: Login */}
         <section id="login">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center">
             <LoginOutlined className="text-2xl text-blue-500" />
             <Title level={2} className="!m-0">1. Access & Login</Title>
           </div>
           <Paragraph>
             Access the platform via the official link below using your credentials.
           </Paragraph>
-          <div className="bg-blue-50 p-4 rounded-lg mb-6 inline-block">
+          <div className="bg-blue-50 p-4 rounded-lg mb-6 inline-block dark:bg-blue-900 dark:text-blue-100">
             <Text strong>Website: </Text>
-            <Link href="https://server.toolmen.bime.ntu.edu.tw" target="_blank" className="text-lg ml-2">
+            <Link href="https://server.toolmen.bime.ntu.edu.tw" target="_blank" className="text-lg ml-2 dark:text-blue-400">
               https://server.toolmen.bime.ntu.edu.tw
             </Link>
           </div>
-          <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200">
-            <Image src={homepageImg} alt="Homepage" />
+          <div className="rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 dark:ring-slate-700 bg-transparent leading-[0]">
+            <Image 
+              src={isDark ? homepageImgDark : homepageImg}
+              alt="Homepage" 
+            />
           </div>
         </section>
 
@@ -87,14 +91,17 @@ const HelpTab = () => {
           </Paragraph>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
-            <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200 h-fit">
-              <Image src={createWorkspaceImg} alt="Create Workspace Modal" />
+            <div className="rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 dark:ring-slate-700 bg-transparent leading-[0]">
+              <Image 
+                src={isDark ? createWorkspaceImgDark : createWorkspaceImg}
+                alt="Create Workspace Modal" 
+              />
             </div>
-            <div className="flex flex-col justify-center">
-               <Alert
+            <div className="flex flex-col justify-center dark:text-gray-300">
+              <Alert
                 message="Naming Rules"
                 description={
-                  <ul className="list-disc pl-4 mt-2 mb-0 text-gray-600">
+                  <ul className="list-disc pl-4 mt-2 mb-0 text-gray-600 dark:text-gray-400">
                     <li>Less than 30 characters</li>
                     <li>No capital letters (lowercase only)</li>
                     <li>No underscores ( <code>_</code> ), use hyphens (<code>-</code>) instead</li>
@@ -128,14 +135,14 @@ const HelpTab = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card title="Web Interface" size="small" className="h-full">
-              <ul className="list-disc pl-5 space-y-2 text-gray-700">
+              <ul className="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
                 <li><Text strong>Desktop:</Text> Opens a VNC remote desktop in your browser.</li>
                 <li><Text strong>Jupyter:</Text> Opens JupyterLab for coding.</li>
                 <li><Text strong>More (⋮):</Text> Delete or Restart your workspace.</li>
               </ul>
             </Card>
 
-            <Card title="SSH Connection" size="small" className="h-full bg-gray-50">
+            <Card title="SSH Connection" size="small" className="h-full bg-gray-50 dark:bg-gray-800">
               <div className="flex flex-col h-full justify-between">
                 <Paragraph>
                   You can connect to your workspace via terminal using SSH.
@@ -145,7 +152,7 @@ const HelpTab = () => {
                   {/* 使用 AntD 的 copyable 屬性，方便使用者複製 */}
                   <Paragraph 
                     copyable={{ text: "ssh -p 8787 workspace_name@toolmen.bime.ntu.edu.tw" }}
-                    className="bg-gray-800 text-green-400 p-3 rounded-md font-mono text-sm mt-1 mb-0"
+                    className="bg-gray-800 text-green-400 p-3 rounded-md font-mono text-sm mt-1 mb-0 dark:bg-gray-700 dark:text-green-300 cursor-pointer"
                   >
                     ssh -p 8787 workspace_name@toolmen.bime.ntu.edu.tw
                   </Paragraph>

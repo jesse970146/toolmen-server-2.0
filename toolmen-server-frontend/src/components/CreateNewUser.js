@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import {
+  App,
   Button,
   Drawer,
   Form,
@@ -9,8 +10,6 @@ import {
   InputNumber,
   Select,
   Switch,
-  notification,
-  message,
   Divider,
 } from "antd";
 import { 
@@ -29,7 +28,7 @@ const CreateNewUser = ({ visible, onClose, sendRequest, LabList }) => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
-
+  const { notification, message} = App.useApp();
   // 錯誤通知
   const onErrorHandler = (err) => {
     notification.error({
@@ -161,11 +160,11 @@ const CreateNewUser = ({ visible, onClose, sendRequest, LabList }) => {
             {LabList.map((lab) => (
               <Option key={lab.name} value={lab.name} className="py-2">
                 <div className="flex items-center gap-3">
-                  <div className="bg-blue-50 p-2 rounded-md text-blue-500">
+                  <div className="bg-blue-50 p-2 rounded-md text-blue-500 dark:bg-gray-700">
                     <LuMicroscope size={18} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-medium text-gray-700">{lab.name}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-200">{lab.name}</span>
                   </div>
                 </div>
               </Option>

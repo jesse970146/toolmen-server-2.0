@@ -13,7 +13,7 @@ import AdminTabUser from "../components/AdminTabUser";
 import AdminTabImage from "../components/AdminTabImage";
 import AdminTabLab from "../components/AdminTabLab";
 
-const AdminPage = () => {
+const AdminPage = ({ isDark }) => {
   const [adminActiveTab, setAdminActiveTab] = useState("admin-ws");
 
   // 渲染 Tab 標題的輔助函式
@@ -65,14 +65,14 @@ const AdminPage = () => {
   ];
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-md overflow-hidden min-h-[70vh] border border-gray-200">
+    <div className={`w-full rounded-xl shadow-md overflow-hidden  border border-gray-200 ${isDark ? 'dark bg-slate-900' : 'bg-white'}`}>
       
       {/* 頂部裝飾條 */}
-      <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+      {/* <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600" d></div> */}
 
-      <div className="p-6">
-        <div className="mb-6 border-b pb-4">
-           <h2 className="text-2xl font-bold text-gray-800">Admin Control</h2>
+      <div className="p-6 dark:bg-slate-900">
+        <div className="mb-6 border-b pb-4 dark:border-gray-700">
+           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Admin Control</h2>
         </div>
 
         <Tabs

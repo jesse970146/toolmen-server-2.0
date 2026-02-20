@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Table, message, Modal, Space } from "antd";
+import { App, Button, Table, Space } from "antd";
 import AuthContext from "../context/auth-context";
 
 
@@ -14,6 +14,7 @@ const AdminTabWorkspace = ({ isActive }) => {
     setPageSize(size);
   };
 
+  const { modal, message } = App.useApp();
 
   // 取得 Workspace 列表
   const fetchWorkspaces = useCallback(async (showLoading = false) => {
@@ -34,7 +35,7 @@ const AdminTabWorkspace = ({ isActive }) => {
     } finally {
       if (showLoading) setLoading(false);
     }
-  }, [auth.token]);
+  }, [auth.token, message]);
 
   // 輪詢機制
   useEffect(() => {
@@ -48,7 +49,7 @@ const AdminTabWorkspace = ({ isActive }) => {
 
   // 刪除 Workspace
   const handleDeleteWorkspace = (workspace) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Delete Workspace",
       content: (
         <span>
@@ -148,7 +149,7 @@ const AdminTabWorkspace = ({ isActive }) => {
   return (
     <>
       <div className="flex w-full justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl">Workspace Management</div>
+        <div className="text-gray-700 font-semibold text-xl dark:text-gray-200">Workspace Management</div>
       </div>
       
       <Table 

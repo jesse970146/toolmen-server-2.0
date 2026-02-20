@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Table, message, Modal, Space } from "antd";
+import { App, Button, Table, Space } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import AuthContext from "../context/auth-context";
 import CreateNewLab from "./CreateNewLab";
 
 const AdminTabLab = ({ isActive }) => {
   const auth = useContext(AuthContext);
-  
+  const { message } = App.useApp();
   // 狀態管理
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,6 +16,7 @@ const AdminTabLab = ({ isActive }) => {
     setPageSize(size);
   };
 
+  const { modal } = App.useApp();
   // 開啟/關閉 Drawer
   const showDrawer = () => setIsDrawerVisible(true);
   const onClose = () => setIsDrawerVisible(false);
@@ -40,7 +41,7 @@ const AdminTabLab = ({ isActive }) => {
     } finally {
       if (showLoading) setLoading(false);
     }
-  }, [auth.token]);
+  }, [auth.token, message]);
 
   // 輪詢機制 (Polling)
   useEffect(() => {
@@ -54,10 +55,10 @@ const AdminTabLab = ({ isActive }) => {
 
   // 刪除 Lab
   const handleDeleteLab = (lab) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Delete Lab",
       content: (
-        <span>
+        <span className="dark:text-gray-300">
           Are you sure you want to delete Lab <b>{lab.name}</b>?
         </span>
       ),
@@ -123,15 +124,8 @@ const AdminTabLab = ({ isActive }) => {
     <>
       {/* 頂部操作列 */}
       <div className="flex w-full justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl">Lab Management</div>
+        <div className="text-gray-700 font-semibold text-xl dark:text-gray-200">Lab Management</div>
         <div className="flex gap-2">
-          {/* <Button 
-            onClick={() => fetchLabs(true)} 
-            icon={<IoReload />}
-            loading={loading}
-          >
-            Reload
-          </Button> */}
           <Button
             type="primary"
             onClick={showDrawer}

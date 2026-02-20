@@ -1,11 +1,10 @@
 import React, { useState, useContext } from "react";
 import {
+  App,
   Button,
   Drawer,
   Form,
   Input,
-  notification,
-  message,
 } from "antd";
 import { ExperimentOutlined } from "@ant-design/icons";
 import AuthContext from "../context/auth-context";
@@ -14,7 +13,7 @@ const CreateNewLab = ({ visible, onClose, sendRequest }) => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
-
+  const { notification, message } = App.useApp();
   // 錯誤通知
   const onErrorHandler = (err) => {
     notification.error({

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Table, message, Modal, Space } from "antd";
+import { App, Button, Table, Space} from "antd";
 import { FaPlus } from "react-icons/fa6";
 import AuthContext from "../context/auth-context";
 import CreateNewImage from "./CreateNewImage";
@@ -19,7 +19,7 @@ const AdminTabImage = ({ isActive }) => {
   // 開啟/關閉 Drawer
   const showDrawer = () => setIsDrawerVisible(true);
   const onClose = () => setIsDrawerVisible(false);
-
+  const { modal, message } = App.useApp();
   // 取得 Images 資料
   // showLoading: true 代表要顯示轉圈圈 (初次載入用)
   // showLoading: false 代表背景偷偷更新 (輪詢用)
@@ -42,7 +42,7 @@ const AdminTabImage = ({ isActive }) => {
     } finally {
       if (showLoading) setLoading(false);
     }
-  }, [auth.token]);
+  }, [auth.token, message]);
 
   // 輪詢機制 (Polling)
   useEffect(() => {
@@ -56,7 +56,7 @@ const AdminTabImage = ({ isActive }) => {
 
   // 刪除 Image
   const handleDeleteImage = (image) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Delete Image",
       content: (
         <span>
@@ -145,7 +145,7 @@ const AdminTabImage = ({ isActive }) => {
   return (
     <>
       <div className="flex w-full justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl">Image Management</div>
+        <div className="text-gray-700 font-semibold text-xl dark:text-gray-200">Image Management</div>
         <div className="flex gap-2">
           <Button
             type="primary"

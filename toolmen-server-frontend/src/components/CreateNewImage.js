@@ -1,11 +1,10 @@
 import React, { useState, useContext } from "react";
 import {
+  App,
   Button,
   Drawer,
   Form,
   Input,
-  notification,
-  message,
 } from "antd";
 import { 
   FileImageOutlined, 
@@ -18,6 +17,7 @@ const CreateNewImage = ({ visible, onClose, sendRequest }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
 
+  const { notification, message} = App.useApp();
   // 錯誤通知
   const onErrorHandler = (err) => {
     notification.error({

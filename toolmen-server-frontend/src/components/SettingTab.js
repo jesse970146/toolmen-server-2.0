@@ -1,11 +1,11 @@
 import React, { useState, useContext } from "react";
-import { Button, Form, Input, notification } from "antd";
+import { App, Button, Form, Input} from "antd";
 import AuthContext from "../context/auth-context";
 
 const SettingTab = () => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
-  
+  const { notification } = App.useApp();
   // 新增 loading 狀態，避免重複提交並提供視覺回饋
   const [loading, setLoading] = useState(false);
 

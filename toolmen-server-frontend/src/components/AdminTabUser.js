@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Table, Dropdown, message, Modal, } from "antd";
+import { App, Button, Table, Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { FaPlus } from "react-icons/fa6";
 import AuthContext from "../context/auth-context";
@@ -18,6 +18,8 @@ const AdminTabUser = ({ isActive }) => {
     setPageSize(size);
   };
   
+  const { modal, message } = App.useApp();
+
   // Drawer 狀態
   const [isCreateDrawerVisible, setIsCreateDrawerVisible] = useState(false);
   const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
@@ -36,7 +38,7 @@ const AdminTabUser = ({ isActive }) => {
       console.error("Failed to fetch labs:", err);
       message.error("Failed to load lab list");
     }
-  }, [auth.token]);
+  }, [auth.token, message]);
 
   // 開啟 Create User Drawer (先抓 Lab 資料再開)
   const showCreateUserDrawer = async () => {
@@ -75,7 +77,7 @@ const AdminTabUser = ({ isActive }) => {
     } finally {
       if (showLoading) setLoading(false);
     }
-  }, [auth.token]);
+  }, [auth.token, message]);
 
   // 輪詢機制
   useEffect(() => {
@@ -89,7 +91,7 @@ const AdminTabUser = ({ isActive }) => {
 
   // 刪除使用者
   const handleDeleteUser = (user) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Delete User",
       content: (
         <span>
@@ -129,7 +131,7 @@ const AdminTabUser = ({ isActive }) => {
 
   // 重設密碼
   const handleResetPassword = (user) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Reset User Password",
       content: (
         <span>
@@ -259,7 +261,7 @@ const AdminTabUser = ({ isActive }) => {
   return (
     <>
       <div className="flex w-full justify-between items-center mb-4">
-        <div className="text-gray-700 font-semibold text-xl">User Management</div>
+        <div className="text-gray-700 font-semibold text-xl dark:text-gray-200">User Management</div>
         <div className="flex gap-2">
           <Button
             type="primary"

@@ -8,7 +8,7 @@ const Footer = () => {
     <footer className="relative w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm mt-auto border-t-0 transition-colors duration-300">
       
       {/* 漸層線 (保持不變) */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 dark:from-blue-600/40 dark:via-purple-500/40 dark:to-blue-600/40"></div>
       
       {/* 內層容器：
           1. py-8 改為 py-4 (減少上下留白)

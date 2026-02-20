@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Button, Progress, message, Tooltip, Typography } from "antd";
+import { App, Button, Progress, Tooltip, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons"; // 引入 Ant Icons
 
 import WorkspaceList from "./WorkspaceList";
@@ -16,7 +16,7 @@ const WorkspaceTab = ({ isActive }) => {
   const [nodeList, setNodeList] = useState([]);
   const [loadedWorkspaces, setLoadedWorkspaces] = useState([]);
   const [drawerVisible, setDrawerVisible] = useState(false);
-
+  const { message } = App.useApp();
 
   // 通用的 Fetch 處理函式 (DRY 原則)
   const fetchData = useCallback(async (endpoint, setter) => {
@@ -91,8 +91,8 @@ const WorkspaceTab = ({ isActive }) => {
         {/* 左側：Quota 顯示 */}
         <div className="flex flex-col gap-1 w-full md:w-auto">
           <div className="flex items-baseline gap-2">
-            <Text strong className="text-xl text-gray-700">My Workspaces</Text>
-            <Text type="secondary" className="text-sm">
+            <Text strong className="text-xl text-gray-700 dark:text-gray-300">My Workspaces</Text>
+            <Text type="secondary" className="text-sm dark:text-gray-400">
               ({currentCount} / {maxQuota})
             </Text>
           </div>

@@ -1,11 +1,11 @@
 import React, { useContext, useState } from "react";
 import {
+  App,
   Card,
   Button,
   Dropdown,
   Tag,
   Tooltip,
-  message,
   Modal,
   Input,
   Typography,
@@ -34,7 +34,7 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
-
+  const { message } = App.useApp();
   // --- 狀態設置 ---
   const getStatusConfig = (status) => {
     switch (status) {
@@ -63,7 +63,7 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
       });
       const responseData = await response.json();
       if (!response.ok) throw new Error(responseData.message || "Action failed");
-      message.success(isDelete ? "Workspace deleted successfully" : "Success");
+      message.success(isDelete ? "Workspace deleted successfully" : "Workspace restarted successfully");
       if (isDelete) setIsDeleteModalOpen(false);
       sendRequest();
     } catch (err) {
@@ -113,7 +113,7 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
     <>
       <Card
         loading={loading}
-        className="flex flex-col h-full hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden border-gray-200"
+        className="flex flex-col h-full hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden border-gray-200 dark:border-gray-700"
         styles={{ 
           body: { 
             padding: "0",
@@ -124,44 +124,44 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
         }}
       >
         {/* Header */}
-        <div className={`px-5 py-4 flex justify-between items-center border-b ${isRunning ? "bg-green-50/60" : "bg-gray-50"}`}>
+        <div className={`px-5 py-4 flex justify-between items-center border-b ${isRunning ? "bg-green-50/60 dark:bg-green-500/10" : "bg-gray-50 dark:bg-gray-700"}`}>
           <Tag color={statusConfig.color} className="m-0 rounded-full px-3 py-1 text-sm font-medium border-0 flex items-center gap-2">
             {statusConfig.icon} {workspace.status} 
           </Tag>
           <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
-            <Button type="text" shape="circle" icon={<FaEllipsisV className="text-gray-500 text-lg" />} />
+            <Button type="text" shape="circle" icon={<FaEllipsisV className="text-gray-500 text-lg dark:text-gray-400" />} />
           </Dropdown>
         </div>
 
         {/* Body */}
-        <div className="p-6 flex-1 flex flex-col items-center">
-          <div className={`p-4 rounded-full mb-4 transition-colors duration-300 ${isRunning ? "bg-orange-50 text-orange-500" : "bg-gray-100 text-gray-400"}`}>
+        <div className="p-6 flex-1 flex flex-col items-center dark:bg-gray-800">
+          <div className={`p-4 rounded-full mb-4 transition-colors duration-300 ${isRunning ? "bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-400" : "bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500"}`}>
             <FaUbuntu size={52} className={workspace.status === "Creating" ? "animate-pulse" : ""} />
           </div>
           
           <div className="text-center w-full mb-4">
-            <h3 className="text-xl font-bold text-gray-800 mb-1 truncate w-full px-2" title={workspace.name}>
+            <h3 className="text-xl font-bold text-gray-800 mb-1 truncate w-full px-2 dark:text-gray-300" title={workspace.name}>
               {workspace.name}
             </h3>
-            <p className="text-sm text-gray-500 font-mono inline-block bg-gray-100 px-3 py-1 rounded-md">
+            <p className="text-sm text-gray-500 font-mono inline-block bg-gray-100 px-3 py-1 rounded-md dark:bg-gray-700 dark:text-gray-400">
               {workspace.server || "Server Node"}
             </p>
           </div>
           
-          <div className="w-full bg-gray-50 p-3 rounded-xl border border-gray-100">
-            <div className="grid grid-cols-[70px_1fr] gap-y-2 gap-x-4 text-sm">
-              <div className="text-gray-500 font-medium text-right">Status</div>
-              <div className={`font-semibold text-left truncate ${statusConfig.color === 'processing' ? 'text-blue-600' : 'text-gray-800'}`}>
+          <div className="w-full bg-gray-50 p-3 rounded-xl border border-gray-100 dark:bg-slate-700/50 dark:border-gray-600">
+            <div className="grid grid-cols-[70px_1fr] gap-y-2 gap-x-4 text-sm dark:text-gray-400">
+              <div className="text-gray-500 font-medium text-right dark:text-gray-400">Status</div>
+              <div className={`font-semibold text-left truncate ${statusConfig.color === 'processing' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-gray-300'}`}>
                 {workspace.status}
               </div>
-              <div className="text-gray-500 font-medium text-right">Created</div>
-              <div className="font-semibold text-gray-800 text-left truncate" title={workspace.create_time}>
+              <div className="text-gray-500 font-medium text-right dark:text-gray-400">Created</div>
+              <div className="font-semibold text-gray-800 text-left truncate dark:text-gray-300" title={workspace.create_time}>
                 {workspace.create_time}
               </div>
-              <div className="text-gray-500 font-medium text-right">Image</div>
+              <div className="text-gray-500 font-medium text-right dark:text-gray-400">Image</div>
               <div className="text-left">
                 <Tooltip title={workspace.image_name}>
-                  <div className="font-semibold text-gray-800 truncate cursor-help">
+                  <div className="font-semibold text-gray-800 truncate cursor-help dark:text-gray-300">
                     {workspace.image_name}
                   </div>
                 </Tooltip>
@@ -171,26 +171,26 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-5 bg-white mt-auto">
+        <div className="p-5 bg-white mt-auto dark:bg-gray-800">
           {isRunning ? (
             <div className="flex gap-4 animate-fade-in">
               <Button 
                 block 
-                className="flex items-center justify-center gap-2 bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100 hover:border-orange-300 h-11 text-base font-medium shadow-sm hover:shadow"
+                className="flex items-center justify-center gap-2 bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100 hover:border-orange-300 h-11 text-base font-medium shadow-sm hover:shadow dark:bg-orange-600/10 dark:text-orange-600 dark:border-orange-600 dark:hover:bg-orange-500/20"
                 onClick={onJupyterHandler}
               >
-                <SiJupyter size={18} /> Jupyter
+                <SiJupyter size={18} className="text-orange-500 dark:text-orange-800" /> Jupyter
               </Button>
               <Button 
                 block 
-                className="flex items-center justify-center gap-2 h-11 text-base font-medium text-gray-600 shadow-sm hover:shadow hover:text-gray-800 hover:border-gray-400"
+                className="flex items-center justify-center gap-2 h-11 text-base font-medium text-gray-600 shadow-sm hover:shadow hover:text-gray-800 hover:border-gray-400 dark:text-gray-400 dark:hover:text-gray-300 dark:border-gray-600 dark:hover:border-gray-500"
                 onClick={onDesktopHandler}
               >
-                <FaLinux size={18} /> Desktop
+                <FaLinux size={18} className="text-gray-600 dark:text-gray-400"/> Desktop
               </Button>
             </div>
           ) : (
-            <div className="h-11 flex items-center justify-center text-gray-400 italic text-sm select-none">
+            <div className="h-11 flex items-center justify-center text-gray-400 italic text-sm select-none dark:text-gray-500">
                {workspace.status === "Creating" ? "Initializing..." : ""}
             </div>
           )}
@@ -208,10 +208,10 @@ const WorkspaceItem = ({ w: workspace, sendRequest }) => {
         ]}
       >
         <Space direction="vertical" className="w-full py-2">
-          <div className="bg-red-50 border border-red-100 p-4 rounded-md text-red-800 text-base">
+          <div className="bg-red-50 border border-red-100 p-4 rounded-md text-red-800 text-base dark:bg-red-500/10 dark:border-red-600 dark:text-red-400">
             Warning: This action <strong>cannot</strong> be undone. All data in 
             {/* 修改這裡：加入 whitespace-nowrap 強制不換行 */}
-            <span className="font-mono mx-1 bg-white px-1.5 py-0.5 rounded border border-red-200 font-bold whitespace-nowrap">
+            <span className="font-mono mx-1 bg-white px-1.5 py-0.5 rounded border border-red-200 font-bold whitespace-nowrap dark:bg-gray-700 dark:border-red-600 dark:text-red-400">
               {workspace.name}
             </span> 
             will be permanently lost.

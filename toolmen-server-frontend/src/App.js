@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import { App as AntdApp, ConfigProvider, theme} from 'antd';
 import AuthContext from "./context/auth-context";
 // import Homepage from "./pages/Homepage";
 import Loginpage from "./pages/Loginpage";
@@ -32,13 +33,12 @@ function getCookie(name) {
   }
   return null;
 }
-const MainLayout = () => {
+const MainLayout = ({ isDark, setIsDark }) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <NavBar />
-      {/* Outlet 是 React Router 用來渲染子路由內容的地方 */}
-      <div className="flex-auto bg-white pt-8 px-6 xl:px-44 pb-12">
-         <Outlet />
+    <div className={`flex flex-col min-h-screen ${isDark ? 'dark' : ''}`}>
+      <NavBar isDark={isDark} setIsDark={setIsDark} />
+      <div className="flex-auto bg-white dark:bg-slate-900 pt-8 px-6 xl:px-44 pb-12 transition-colors duration-300">
+        <Outlet />
       </div>
       <Footer />
     </div>
@@ -52,6 +52,21 @@ const App = () => {
   const [token, setToken] = useState(initToken);
   const [userID, setUserID] = useState(initUid);
   const [userInfo, setUserInfo] = useState(null);
+  // dark mode 狀態 (預設為 false，表示淺色模式)
+  const [isDark, setIsDark] = useState(() => {
+    const savedMode = localStorage.getItem("isDark");
+    return savedMode === "true"; // 轉為布林值
+  });
+
+  // 2. 當 isDark 改變時，同步到 localStorage 和 body class
+  useEffect(() => {
+    localStorage.setItem("isDark", isDark); // 儲存設定
+    if (isDark) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [isDark]);
 
   const login = useCallback((uid, token) => {
     setToken(token);
@@ -118,12 +133,12 @@ const App = () => {
     routes = (
       <>
         {/* 把 MainLayout 當作父路由 */}
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<MainLayout isDark={isDark} setIsDark={setIsDark} />}>
           {/* 首頁預設顯示 Workspace */}
           <Route index element={<WorkspaceTab isActive={true} />} />
           
-          <Route path="settings" element={<SettingTab />} />
-          <Route path="help" element={<HelpTab />} />
+          <Route path="settings" element={<SettingTab/>} />
+          <Route path="help" element={<HelpTab isDark={isDark}/>} />
           
           {/* Admin 路由保護 */}
           {userInfo.is_admin && (
@@ -140,37 +155,45 @@ const App = () => {
     // 這裡很重要，不然重新整理時會有一瞬間白畫面或跳回 Login
     routes = (
       <>
-        <Route path="*" element={<Loadingpage />} />
+        <Route path="*" element={<Loadingpage isDark={isDark} />} />
       </>
     );
   } else { 
     // [情境 3] 未登入 -> 顯示登入頁
     routes = (
       <>
-        <Route path="/login" element={<Loginpage />} />
+        <Route path="/login" element={<Loginpage isDark={isDark} setIsDark={setIsDark}/>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </>
     );
   }
 
   return (
-    <AuthContext.Provider
-      value={{
-        isLoggedIn: !!token,
-        token: token,
-        userID: userID,
-        userInfo: userInfo,
-        login: login,
-        logout: logout,
+    <ConfigProvider
+      theme={{
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
       }}
     >
-      <Router>
-        <Routes>
-          <Route path="/error" element={<Errorpage />} />
-          {routes}
-        </Routes>
-      </Router>
-    </AuthContext.Provider>
+      <AntdApp>
+        <AuthContext.Provider
+          value={{
+            isLoggedIn: !!token,
+            token: token,
+            userID: userID,
+            userInfo: userInfo,
+            login: login,
+            logout: logout,
+          }}
+        >
+          <Router>
+            <Routes>
+              <Route path="/error" element={<Errorpage />} />
+              {routes}
+            </Routes>
+          </Router>
+        </AuthContext.Provider>
+      </AntdApp>
+    </ConfigProvider>
   );
 };
 

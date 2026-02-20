@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { Form, Input, Button, notification } from "antd";
+import { App, Form, Input, Button } from "antd";
 import { AiOutlineUser } from "react-icons/ai";
 import { FiLock } from "react-icons/fi";
 
@@ -11,13 +11,14 @@ import minions from "../assets/images/minions.png";
 // 引入你的 Loadingpage (請確認路徑是否正確，例如 ../pages/Loadingpage 或 ../components/Loadingpage)
 import LoadingOverlay from "./LoadingOverlay"; 
 
-const Loginpage = () => {
+const Loginpage = ({ isDark, setIsDark }) => {
   const auth = useContext(AuthContext);
   const [form] = Form.useForm();
   
   // 新增 loading 狀態
   const [isLoading, setIsLoading] = useState(false);
 
+  const { notification } = App.useApp();
   // 錯誤通知處理
   const onErrorHandler = (err) => {
     notification.error({
@@ -73,13 +74,13 @@ const Loginpage = () => {
 
   // 否則回傳原本的登入頁面
   return (
-    <section className="flex flex-col min-h-screen select-none">
+    <section className={`flex flex-col min-h-screen select-none ${isDark ? 'dark' : ''}`}>
 
       {isLoading && <LoadingOverlay />}
 
-      <NavBar />
+      <NavBar isDark={isDark} setIsDark={setIsDark} />
       
-      <div className="z-0 bg-white flex-1 flex items-center justify-center px-6 xl:px-44">
+      <div className="z-0 bg-white dark:bg-slate-900/90  flex-1 flex items-center justify-center px-6 xl:px-44">
         <div className="rounded-xl w-full max-w-6xl flex flex-col lg:flex-row items-center justify-center gap-8">
           
           {/* 左側圖片 */}
@@ -89,8 +90,8 @@ const Loginpage = () => {
 
           {/* 右側登入表單 */}
           <div className="w-full lg:w-1/2 flex items-center justify-center">
-            <div className="px-8 pt-8 bg-white rounded-md drop-shadow drop-shadow-[0_0_15px_rgba(0,0,0,0.20)] hover:drop-shadow-[0_0_25px_rgba(0,0,0,0.30)] transition duration-200 w-96">
-              <div className="text-gray-700 font-semibold text-3xl mb-8">
+            <div className="px-8 pt-8 bg-white dark:bg-slate-900/90 rounded-md drop-shadow drop-shadow-[0_0_15px_rgba(0,0,0,0.20)] hover:drop-shadow-[0_0_25px_rgba(0,0,0,0.30)] transition duration-200 w-96">
+              <div className="text-gray-700 dark:text-gray-400 font-semibold text-3xl mb-8">
                 Welcome to Toolmen
               </div>
               
@@ -147,6 +148,7 @@ const Loginpage = () => {
 
       <Footer />
     </section>
+    
   );
 };
 

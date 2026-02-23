@@ -66,7 +66,7 @@ def send_account_created_email(to_email, user, default_password, url, event):
     msg['To'] = to_email
 
     try:
-        smtp = smtplib.SMTP('smtp.gmail.com', 587)
+        smtp = smtplib.SMTP('smtp.toolmen.bime.ntu.edu.tw', 587)
         smtp.ehlo()
         smtp.starttls()
         smtp.login(sender, password)

@@ -9,7 +9,7 @@
 * **Infrastructure & Containerization**: Kubernetes (K8s), Docker
 * **Core Packages**: `kubernetes Python client`, `Flask`
 
-## 🚀 Deployment Workflow
+## 🚀 Getting Started
 
 Since this service is designed to run within the Kubernetes cluster to manage resources, the standard deployment workflow involves packaging it, configuring cluster permissions, and deploying it as a Kubernetes resource.
 
@@ -54,10 +54,4 @@ rules:
 ### 3. Deploy to the Cluster
 
 Once the image is built and the RBAC permissions are established, deploy the API service. 
-
-## 🔄 Core API Features
-
-* **Dynamic Environment Deployment**: Receives training task parameters and dynamically generates/applies K8s resource manifests (e.g., Pods, Jobs).
-* **Environment Status Monitoring**: Real-time querying of the training environment's running status (Pending, Running, Succeeded, Failed).
-* **Resource Reclamation & Cleanup**: Automatically deletes corresponding K8s resources to free up compute capacity when training finishes or a termination command is received.
 

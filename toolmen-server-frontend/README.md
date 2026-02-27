@@ -1,6 +1,6 @@
 # Toolmen Server Frontend
 
-## 📝 About The Project
+## 📝 About The Service
 The `toolmen-server-frontend` is the user-facing web interface for the Toolmen 2.0 system. It provides an intuitive, interactive dashboard that allows users to easily configure, launch, and monitor their dedicated Kubernetes-based AI and machine learning training environments. It communicates directly with the `toolmen-server-backend` to submit tasks and retrieve real-time environment status.
 
 ## 🛠️ Tech Stack
@@ -46,10 +46,3 @@ npm start
 ```
 
 The application should now be running locally, typically at `http://localhost:3000` or `http://localhost:5173`.
-
-
-## 🔄 Core Features
-
-* **Environment Configuration Form**: An interface for users to specify compute resources (CPU/GPU, memory) and Docker images for their training tasks.
-* **Status Dashboard**: Real-time monitoring of deployed Kubernetes Pods (e.g., Pending, Running, Completed).
-* **Resource Management**: Controls to manually terminate or restart training environments.

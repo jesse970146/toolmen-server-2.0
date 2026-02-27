@@ -5,7 +5,7 @@ The `toolmen-server-backend` serves as the core orchestrator for the Toolmen 2.0
 
 ## 🛠️ Tech Stack
 * **Main Language**: Python
-* **Framework**: *(e.g. Flask)*
+* **Framework**: *Flask*
 * **Containerization**: Docker
 * **Key Integrations**: Communicates via http with the `toolmen-server-api-k8s` service.
 
@@ -48,7 +48,6 @@ GMAIL_PASS= 'XXXXXXXXXXXXXX' # Mail user password
 REDIS_URL = localhost  
 REDIS_PORT=6379
 REDIS_PASSWORD = XXXXXXXXXXXXXXXXXXXX
-
 ```
 
 ### 4. Start the Backend Server

@@ -17,3 +17,11 @@ This project adopts a decoupled, modular architecture, consisting of three core 
 * **Frontend**: React
 * **Backend**: Python
 * **Infrastructure**: Kubernetes (K8s), Docker
+
+
+# What need to configure
+## Add node
+Add lab=toolmen-bblab for allowing group toolmen,bblab access this node.
+```
+kubectl label nodes toolmen-server7 lab=toolmen-bblab --overwrite
+```

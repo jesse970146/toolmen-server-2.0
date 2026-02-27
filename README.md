@@ -29,3 +29,12 @@ kubectl label nodes toolmen-server7 lab=toolmen-bblab --overwrite
 ```
 
 This label allows the specified groups to schedule workloads on this node.
+
+## Deploying SSHPiper with Helm
+
+Deploy [SSHPiper (tg123/sshpiper)](https://github.com/tg123/sshpiper) in a Kubernetes cluster using Helm. 
+
+SSHPiper acts as a reverse proxy for the SSH protocol. It allows you to use a single entry point (IP/Port) and intelligently route incoming SSH connections to various backend servers (either inside or outside the cluster) based on the login username, which is required by our service.
+
+
+

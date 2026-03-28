@@ -140,7 +140,15 @@ class WorkspaceList(Resource):
     @active_required()
     def post(self): # create
         user_id = get_jwt_identity()
-        user_data = user_schema.dump(UserModel.find_by_id(user_id))
+        # 與quota比對
+        user = UserModel.find_by_id(user_id)
+        current_workspace_count = user.workspaces.count()
+        if current_workspace_count >= user.quota:
+            return {
+                "message": f"已達到配額限制 (目前: {current_workspace_count}, 上限: {user.quota})。請刪除現有工作區或聯繫管理員。"
+            }, 400
+
+        user_data = user_schema.dump(user)
         workspace_json = request.get_json()
 
         # name 只保留 a-z0-9-

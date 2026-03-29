@@ -10,7 +10,10 @@ from urllib.parse import urlparse
 class ownership(Resource):
     @jwt_required()
     def get(self):
-        original_path = request.headers.get("X-Auth-Request-Redirect", "")
+        # nginx 反向代理使用的 X-Auth-Request-Redirect header以及traefik使用的X-Forwarded-Uri header
+        original_path = request.headers.get("X-Auth-Request-Redirect", "") or\
+                        request.headers.get("X-Forwarded-Uri", "") 
+        
         # 取得原始請求路徑
         
         path = urlparse(original_path).path

@@ -149,15 +149,25 @@ def create():
     template_service = yaml.load(template_service, Loader=yaml.FullLoader)
     core_v1_api.create_namespaced_service(ns, template_service)
     
-    # ingress
-    text_ingress = open("template/ingress.yml").read()
-    template_ingress = Template(text_ingress).render({
+    # ingress-jupyter
+    text_ingress_jupyter = open("template/ingress-jupyter.yml").read()
+    template_ingress_jupyter = Template(text_ingress_jupyter).render({
         'namespace': ns,
         'name': name,
         'host': workspace_base_url
     })
-    template_ingress = yaml.load(template_ingress, Loader=yaml.FullLoader)
-    networking_v1_api.create_namespaced_ingress(ns, template_ingress)
+    template_ingress_jupyter = yaml.load(template_ingress_jupyter, Loader=yaml.FullLoader)
+    networking_v1_api.create_namespaced_ingress(ns, template_ingress_jupyter)
+
+    # ingress-vnc
+    text_ingress_vnc = open("template/ingress-vnc.yml").read()
+    template_ingress_vnc = Template(text_ingress_vnc).render({
+        'namespace': ns,
+        'name': name,
+        'host': workspace_base_url
+    })
+    template_ingress_vnc = yaml.load(template_ingress_vnc, Loader=yaml.FullLoader)
+    networking_v1_api.create_namespaced_ingress(ns, template_ingress_vnc)
 
     # pipe
     text_pipe = open("template/pipe.yml").read()
@@ -190,7 +200,8 @@ def delete():
 
     apps_v1_api.delete_namespaced_deployment(name, ns)  
     core_v1_api.delete_namespaced_service(name, ns)
-    networking_v1_api.delete_namespaced_ingress(name, ns)
+    networking_v1_api.delete_namespaced_ingress(f"{name}-jupyter-ingress", ns)
+    networking_v1_api.delete_namespaced_ingress(f"{name}-vnc-websockify-ingress", ns)
     custom_v1_api.delete_namespaced_custom_object(
         group="sshpiper.com",
         version="v1beta1",

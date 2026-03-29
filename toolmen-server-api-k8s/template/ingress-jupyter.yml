@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ name }}-jupyter-ingress"
+  namespace: {{ namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: toolmen-toolmen-auth@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - server.toolmen.bime.ntu.edu.tw
+      secretName: server-frontend-tls-secret
+  rules:
+    - host: {{ host }}
+      http:
+        paths:
+          - path: /{{ name }}/jupyter
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ name }}
+                port:
+                  number: 8000

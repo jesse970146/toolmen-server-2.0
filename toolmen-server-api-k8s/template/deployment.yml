@@ -46,6 +46,8 @@ spec:
               mountPath: /home/nas  
             - name: nfs-nas-data2
               mountPath: /home/nas2
+            - name: nfs-nas-data3
+              mountPath: /home/nas3
             - name: nfs-nas-pig
               mountPath: /home/nas-pig 
             {% endif %}
@@ -77,6 +79,9 @@ spec:
         - name: nfs-nas-data2
           persistentVolumeClaim:
             claimName: nfs-nas-data2
+        - name: nfs-nas-data3
+          persistentVolumeClaim:
+            claimName: nfs-nas-data3
         - name: nfs-nas-pig
           persistentVolumeClaim:
             claimName: nfs-nas-pig

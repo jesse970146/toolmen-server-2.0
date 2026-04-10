@@ -62,8 +62,10 @@ spec:
           resources:
             requests:
               memory: "512Mi"
+              ephemeral-storage: "10Gi"
             limits:
               memory: "60Gi"
+              ephemeral-storage: "50Gi"
       
       volumes:
         - name: dshm
